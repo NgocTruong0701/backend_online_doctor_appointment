@@ -1,8 +1,8 @@
-import { UserRole } from "src/common/enum/roles.enum";
+import { Role } from "src/common/enum/roles.enum";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('patients')
-export class Patient {
+@Entity('users')
+export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -21,7 +21,7 @@ export class Patient {
     @Column({ nullable: true })
     avatar: string;
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     address: string;
 
     @Column()
@@ -32,8 +32,8 @@ export class Patient {
 
     @Column({
         type: "enum",
-        enum: UserRole,
-        default: UserRole.PATIENT
+        enum: Role,
+        default: Role.PATIENT
     })
-    role: UserRole;
+    role: Role;
 }
