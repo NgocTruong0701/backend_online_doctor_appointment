@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/auth/dto/login.dto';
 
@@ -35,11 +35,20 @@ export class UsersService {
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
+    return await this.userRepository.update(id, updateUserDto);
   }
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async getProfile(payload: any) {
+    const user = await this.userRepository.findOneBy({ id: payload.sub });
+    if (!user) {
+      throw new UnauthorizedException('This profile does not exist');
+    }
+    delete user.password;
+    return user;
   }
 }
