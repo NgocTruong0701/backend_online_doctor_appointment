@@ -3,9 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DoctorsModule } from './doctors/doctors.module';
-import { PatientsModule } from './patients/patients.module';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -19,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
         {
           type: 'mysql',
           host: configService.get('HOST'),
-          port: +configService.get('PORT'),
+          port: +configService.get('DB_PORT'),
           username: configService.get('USER_NAME'),
           password: configService.get('PASSWORD'),
           database: configService.get('DATABASE'),
@@ -28,8 +27,7 @@ import { AuthModule } from './auth/auth.module';
         }),
       inject: [ConfigService]
     }),
-    PatientsModule,
-    DoctorsModule,
+    UsersModule,
     AuthModule,
   ],
   controllers: [AppController],
