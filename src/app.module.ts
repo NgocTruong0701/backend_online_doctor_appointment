@@ -9,6 +9,9 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { PatientsModule } from './patients/patients.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -29,6 +32,31 @@ import { PatientsModule } from './patients/patients.module';
           autoLoadEntities: true,
           synchronize: true,
         }),
+      inject: [ConfigService]
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        // transport: configService.get('MAIL_TRANSPORT'),
+        transport: {
+          host: configService.get('MAIL_HOST'),
+          secure: false,
+          auth: {
+            user: configService.get('MAIL_USER'),
+            pass: configService.get('MAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: `"No Reply" <${configService.get('MAIL_FROM')}>`,
+        },
+        template: {
+          dir: join(__dirname, 'src/common/templates/email'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        }
+      }),
       inject: [ConfigService]
     }),
     UsersModule,

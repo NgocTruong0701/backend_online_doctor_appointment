@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { Patient } from 'src/patients/entities/patient.entity';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UsersService {
@@ -15,9 +16,27 @@ export class UsersService {
     private userRepository: Repository<User>,
     @InjectRepository(Patient)
     public patientRepository: Repository<Patient>,
+    private mailerService: MailerService,
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<Patient> {
+    const userInDb = await this.userRepository.findBy({
+      email: createUserDto.email,
+    });
+
+    if(userInDb) {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.mailerService.sendMail({
+      to: createUserDto.email,
+      subject: 'Welcome to my website',
+      template: './verify.email',
+      context: {
+        name: createUserDto.name,
+      },
+    });
+
     const salt = await bcrypt.genSalt();
     createUserDto.password = await bcrypt.hash(createUserDto.password, salt);
 
@@ -38,6 +57,7 @@ export class UsersService {
 
     await this.patientRepository.save(patient);
     delete account.password;
+
     return patient;
   }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
@@ -7,19 +7,24 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Public } from 'src/common/decorator/public.decorator';
 import { Patient } from 'src/patients/entities/patient.entity';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
     constructor(
         private userService: UsersService,
-        private authService: AuthService
+        private authService: AuthService,
     ) { }
 
     @Post('signup')
     @Public()
     async signup(@Body() createUserDto: CreateUserDto): Promise<Patient> {
-        return await this.userService.create(createUserDto);
+        try {
+            return await this.userService.create(createUserDto);
+        } catch (error) {
+            throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Post('login')
