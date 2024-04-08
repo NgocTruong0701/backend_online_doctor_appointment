@@ -6,6 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { DoctorsModule } from './doctors/doctors.module';
+import { PatientsModule } from './patients/patients.module';
 
 @Module({
   imports: [
@@ -30,6 +33,9 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
     }),
     UsersModule,
     AuthModule,
+    AppointmentsModule,
+    DoctorsModule,
+    PatientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

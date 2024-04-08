@@ -42,11 +42,4 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
   }
-
-  @Get('profile')
-  @ApiBearerAuth('JWT-auth')
-  @Roles(Role.ADMIN, Role.DOCTOR, Role.PATIENT)
-  getProfile(@Req() request) {
-    return this.usersService.getProfile(request.user);
-  }
 }
