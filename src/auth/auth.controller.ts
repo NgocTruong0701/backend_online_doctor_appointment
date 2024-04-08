@@ -6,6 +6,7 @@ import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Public } from 'src/common/decorator/public.decorator';
+import { Patient } from 'src/patients/entities/patient.entity';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -17,7 +18,7 @@ export class AuthController {
 
     @Post('signup')
     @Public()
-    async signup(@Body() createUserDto: CreateUserDto): Promise<User> {
+    async signup(@Body() createUserDto: CreateUserDto): Promise<Patient> {
         return await this.userService.create(createUserDto);
     }
 

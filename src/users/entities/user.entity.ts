@@ -7,24 +7,6 @@ export class User {
     id: number;
 
     @Column()
-    name: string;
-
-    @Column({ type: "date", nullable: true })
-    date_of_birth: Date;
-
-    @Column({ nullable: true })
-    gender: number;
-
-    @Column({ nullable: true })
-    phone_number: string;
-
-    @Column({ nullable: true })
-    avatar: string;
-
-    @Column({ nullable: true })
-    address: string;
-
-    @Column()
     email: string;
 
     @Column()
