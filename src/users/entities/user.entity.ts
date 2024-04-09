@@ -18,4 +18,13 @@ export class User {
         default: Role.PATIENT
     })
     role: Role;
+
+    @Column({ default: false })
+    verified: boolean;
+
+    @Column({ nullable: true })
+    verificationCode: string;
+
+    @Column({ nullable: true })
+    verificationExpiry: Date;
 }

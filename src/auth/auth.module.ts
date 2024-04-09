@@ -7,6 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthGuard } from './auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { RolesGuard } from './roles.guard';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([User]),
     UsersModule,
     ConfigModule,
   ],

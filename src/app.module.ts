@@ -47,7 +47,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           },
         },
         defaults: {
-          from: `"Online Doctor Appointment - No Reply" <${configService.get('MAIL_FROM')}>`,
+          from: `"DoctorAppointment - No Reply" <${configService.get('MAIL_FROM')}>`,
         },
         template: {
           dir: join(__dirname, 'src/common/templates/email'),
