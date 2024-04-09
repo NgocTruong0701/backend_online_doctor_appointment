@@ -23,7 +23,7 @@ export class AuthController {
         try {
             return await this.userService.create(createUserDto);
         } catch (error) {
-            throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+            throw new HttpException(error, HttpStatus.BAD_REQUEST);
         }
     }
 

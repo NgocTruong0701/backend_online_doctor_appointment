@@ -20,7 +20,7 @@ export class UsersService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<Patient> {
-    const userInDb = await this.userRepository.findBy({
+    const userInDb = await this.userRepository.findOneBy({
       email: createUserDto.email,
     });
 
@@ -31,7 +31,7 @@ export class UsersService {
     await this.mailerService.sendMail({
       to: createUserDto.email,
       subject: 'Welcome to my website',
-      template: './verify.email',
+      template: './verifyemail',
       context: {
         name: createUserDto.name,
       },
