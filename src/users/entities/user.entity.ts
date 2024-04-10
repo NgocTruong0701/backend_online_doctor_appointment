@@ -1,5 +1,7 @@
 import { Role } from "src/common/enum/roles.enum";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Doctor } from "src/doctors/entities/doctor.entity";
+import { Patient } from "src/patients/entities/patient.entity";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
 export class User {
@@ -27,4 +29,10 @@ export class User {
 
     @Column({ nullable: true })
     verificationExpiry: Date;
+
+    @OneToOne(() => Patient, (patient) => patient.account)
+    patient: Patient;
+
+    @OneToOne(() => Doctor, (doctor) => doctor.account)
+    doctor: Doctor;
 }

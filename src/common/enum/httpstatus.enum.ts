@@ -1,7 +1,4 @@
-/**
- * @publicApi
- */
-export declare enum HttpStatusCode {
+export enum HttpStatusCode {
     CONTINUE = 100,
     SWITCHING_PROTOCOLS = 101,
     PROCESSING = 102,
@@ -52,7 +49,7 @@ export declare enum HttpStatusCode {
     HTTP_VERSION_NOT_SUPPORTED = 505
 }
 
-export declare enum HtppMessage {
+export enum HtppMessage {
     CONTINUE = "Continue",
     SWITCHING_PROTOCOLS = "Switching Protocols",
     PROCESSING = "Processing",

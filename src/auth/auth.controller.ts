@@ -7,7 +7,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { Public } from 'src/common/decorator/public.decorator';
 import { VerifyEmailDto } from './dto/verifyemail.dto';
 import { ResponseData } from 'src/common/global/responde.data';
-import { HtppMessage, HttpStatusCode } from 'src/common/enum/http.status.enum';
+import { HtppMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -27,7 +27,7 @@ export class AuthController {
             }
             return new ResponseData<string>('Verification code has been resent', HttpStatusCode.OK, HtppMessage.OK);
         } catch (error) {
-            return new ResponseData<string>(error, HttpStatusCode.INTERNAL_SERVER_ERROR, HtppMessage.INTERNAL_SERVER_ERROR);
+            return new ResponseData<string>(error, HttpStatus.INTERNAL_SERVER_ERROR, HtppMessage.INTERNAL_SERVER_ERROR);
         }
     }
 

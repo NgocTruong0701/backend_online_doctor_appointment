@@ -9,10 +9,10 @@ import { ApiTags } from '@nestjs/swagger';
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
-  @Post()
-  create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(createAppointmentDto);
-  }
+  // @Post()
+  // create(@Body() createAppointmentDto: CreateAppointmentDto) {
+  //   return this.appointmentsService.create(createAppointmentDto);
+  // }
 
   @Get()
   findAll() {
