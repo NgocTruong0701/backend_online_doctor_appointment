@@ -26,9 +26,7 @@ export class Patient {
     address: string;
 
     @JoinColumn({ name: 'account' })
-    @OneToOne(() => User, (user) => user.patient, {
-        eager: true,
-    })
+    @OneToOne(() => User, (user) => user.patient)
     account: User;
 
     @OneToMany(() => Appointment, (appointment) => appointment.patient)

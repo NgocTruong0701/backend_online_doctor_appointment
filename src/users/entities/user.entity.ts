@@ -30,9 +30,13 @@ export class User {
     @Column({ nullable: true })
     verificationExpiry: Date;
 
-    @OneToOne(() => Patient, (patient) => patient.account)
+    @OneToOne(() => Patient, (patient) => patient.account, {
+        eager: true,
+    })
     patient: Patient;
 
-    @OneToOne(() => Doctor, (doctor) => doctor.account)
+    @OneToOne(() => Doctor, (doctor) => doctor.account, {
+        eager: true,
+    })
     doctor: Doctor;
 }

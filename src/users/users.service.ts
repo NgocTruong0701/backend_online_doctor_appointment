@@ -8,6 +8,9 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { Patient } from 'src/patients/entities/patient.entity';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Role } from 'src/common/enum/roles.enum';
+import { Doctor } from 'src/doctors/entities/doctor.entity';
+import { Specialization } from 'src/specializations/entities/specialization.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +18,11 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Patient)
-    public patientRepository: Repository<Patient>,
+    private patientRepository: Repository<Patient>,
+    @InjectRepository(Specialization)
+    private specializationRepository: Repository<Specialization>,
+    @InjectRepository(Doctor)
+    private doctorRepository: Repository<Doctor>,
     private mailerService: MailerService,
   ) { }
 
@@ -52,17 +59,35 @@ export class UsersService {
       account.verificationExpiry = verificationExpiry;
       await this.userRepository.save(account);
 
-      const patient = new Patient();
-      patient.name = createUserDto.name;
-      patient.address = createUserDto.address;
-      patient.avatar = createUserDto.avatar;
-      patient.date_of_birth = createUserDto.date_of_birth;
-      patient.gender = createUserDto.gender;
-      patient.phone_number = createUserDto.phone_number;
-      patient.account = account;
+      if (createUserDto.role === Role.PATIENT) {
+        const patient = new Patient();
+        patient.name = createUserDto.name;
+        patient.address = createUserDto.address;
+        patient.avatar = createUserDto.avatar;
+        patient.date_of_birth = createUserDto.date_of_birth;
+        patient.gender = createUserDto.gender;
+        patient.phone_number = createUserDto.phone_number;
+        patient.account = account;
 
-      await this.patientRepository.save(patient);
-      delete account.password;
+        await this.patientRepository.save(patient);
+        delete account.password;
+      }
+      else if (createUserDto.role === Role.DOCTOR){
+        const doctor = new Doctor();
+        const specialization = await this.specializationRepository.findOneBy({id: createUserDto.specializationId});
+
+        doctor.specialization = specialization;
+        doctor.name = createUserDto.name;
+        doctor.phone_number = createUserDto.phone_number;
+        doctor.account = account;
+        doctor.address = createUserDto.address;
+        doctor.avatar = createUserDto.avatar;
+        doctor.date_of_birth = createUserDto.date_of_birth;
+        doctor.gender = createUserDto.gender;
+
+        await this.doctorRepository.save(doctor);
+        delete account.password;
+      }
 
       this.sentMailCode(createUserDto.email, createUserDto.name, verificationCode);
       return true;

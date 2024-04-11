@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { DoctorsModule } from 'src/doctors/doctors.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { User } from 'src/users/entities/user.entity';
     TypeOrmModule.forFeature([User]),
     UsersModule,
     ConfigModule,
+    DoctorsModule,
   ],
   controllers: [AuthController],
   providers: [

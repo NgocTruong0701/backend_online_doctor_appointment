@@ -43,10 +43,14 @@ export class AuthController {
 
     @Post('verify-email')
     @Public()
-    async verifyCode(@Body() verifyEmailDto: VerifyEmailDto, @Res() response) {
-        const reuslt = await this.authService.verifyCode(verifyEmailDto)
-        if (reuslt) {
-            return new ResponseData<string>('Email has been verified', HttpStatusCode.OK, HtppMessage.OK);
+    async verifyCode(@Body() verifyEmailDto: VerifyEmailDto) {
+        try {
+            const reuslt = await this.authService.verifyCode(verifyEmailDto)
+            if (reuslt) {
+                return new ResponseData<string>('Email has been verified', HttpStatusCode.OK, HtppMessage.OK);
+            }
+        }catch (error) {
+            return new ResponseData<string>('Server error', HttpStatusCode.INTERNAL_SERVER_ERROR, HtppMessage.INTERNAL_SERVER_ERROR, error);
         }
     }
 }

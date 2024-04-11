@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,8 +24,14 @@ export class AppointmentsService {
   ) { }
 
   async create(payload: any, createAppointmentDto: CreateAppointmentDto): Promise<ResponseData<Appointment>> {
-    const account = await this.userRepository.findOneBy({ id: payload.id });
+    const account = await this.userRepository.findOneBy({ id: payload.sub });
+    if(!account) {
+      throw new NotFoundException('Patient not found');
+    }
     const doctor = await this.doctorRepository.findOneBy({ id: createAppointmentDto.doctorId });
+    if(!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
     const appointment = new Appointment();
 
     appointment.date = createAppointmentDto.date;

@@ -27,9 +27,7 @@ export class Doctor {
     address: string;
 
     @JoinColumn({ name: 'account' })
-    @OneToOne(() => User, (user) => user.doctor, {
-        eager: true,
-    })
+    @OneToOne(() => User, (user) => user.doctor)
     account: User;
 
     @ManyToOne(() => Specialization, (specialization) => specialization.doctors)

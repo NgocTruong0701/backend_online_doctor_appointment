@@ -14,6 +14,11 @@ export class CreateUserDto {
     date_of_birth: Date;
 
     @ApiProperty()
+    @IsOptional()
+    @IsNumber()
+    specializationId: number;
+
+    @ApiProperty()
     @IsNumber()
     @IsOptional()
     gender: number;
