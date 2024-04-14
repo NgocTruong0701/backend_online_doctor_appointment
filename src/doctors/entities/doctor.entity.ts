@@ -1,7 +1,7 @@
 import { Appointment } from "src/appointments/entities/appointment.entity";
 import { Specialization } from "src/specializations/entities/specialization.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('doctors')
 export class Doctor {
@@ -26,9 +26,17 @@ export class Doctor {
     @Column({ nullable: true })
     address: string;
 
+    @CreateDateColumn()
+    created_at: Date;
+
+    @UpdateDateColumn()
+    updated_at: Date;
+
     @JoinColumn({ name: 'account' })
-    @OneToOne(() => User, (user) => user.doctor)
-    account: User;
+    @OneToOne(() => User, (user) => user.doctor, {
+        lazy: true,
+    })
+    account: Promise<User>;
 
     @ManyToOne(() => Specialization, (specialization) => specialization.doctors)
     specialization: Specialization;

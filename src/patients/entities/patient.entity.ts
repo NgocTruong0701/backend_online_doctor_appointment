@@ -1,6 +1,6 @@
 import { Appointment } from "src/appointments/entities/appointment.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('patients')
 export class Patient {
@@ -24,6 +24,12 @@ export class Patient {
 
     @Column({ nullable: true })
     address: string;
+
+    @CreateDateColumn()
+    created_at: Date;
+
+    @UpdateDateColumn()
+    updated_at: Date;
 
     @JoinColumn({ name: 'account' })
     @OneToOne(() => User, (user) => user.patient)

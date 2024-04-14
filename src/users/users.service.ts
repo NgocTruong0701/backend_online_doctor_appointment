@@ -79,7 +79,7 @@ export class UsersService {
         doctor.specialization = specialization;
         doctor.name = createUserDto.name;
         doctor.phone_number = createUserDto.phone_number;
-        doctor.account = account;
+        doctor.account = Promise.resolve(account);
         doctor.address = createUserDto.address;
         doctor.avatar = createUserDto.avatar;
         doctor.date_of_birth = createUserDto.date_of_birth;
