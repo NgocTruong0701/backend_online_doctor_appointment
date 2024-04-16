@@ -7,7 +7,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { Public } from 'src/common/decorator/public.decorator';
 import { VerifyEmailDto } from './dto/verifyemail.dto';
 import { ResponseData } from 'src/common/global/responde.data';
-import { HtppMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
+import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -23,11 +23,11 @@ export class AuthController {
         try {
             const reuslt = await this.userService.create(createUserDto);
             if (reuslt) {
-                return new ResponseData<string>('Create user successfully', HttpStatusCode.CREATED, HtppMessage.CREATED);
+                return new ResponseData<string>('Create user successfully', HttpStatusCode.CREATED, HttpMessage.CREATED);
             }
-            return new ResponseData<string>('Verification code has been resent', HttpStatusCode.OK, HtppMessage.OK);
+            return new ResponseData<string>('Verification code has been resent', HttpStatusCode.OK, HttpMessage.OK);
         } catch (error) {
-            return new ResponseData<string>(error, HttpStatus.INTERNAL_SERVER_ERROR, HtppMessage.INTERNAL_SERVER_ERROR);
+            return new ResponseData<string>(error, HttpStatus.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -47,10 +47,10 @@ export class AuthController {
         try {
             const reuslt = await this.authService.verifyCode(verifyEmailDto)
             if (reuslt) {
-                return new ResponseData<string>('Email has been verified', HttpStatusCode.OK, HtppMessage.OK);
+                return new ResponseData<string>('Email has been verified', HttpStatusCode.OK, HttpMessage.OK);
             }
         }catch (error) {
-            return new ResponseData<string>('Server error', HttpStatusCode.INTERNAL_SERVER_ERROR, HtppMessage.INTERNAL_SERVER_ERROR, error);
+            return new ResponseData<string>('Server error', HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error);
         }
     }
 }

@@ -13,6 +13,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { SpecializationsModule } from './specializations/specializations.module';
+import { FeedbacksModule } from './feedbacks/feedbacks.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { SpecializationsModule } from './specializations/specializations.module'
     DoctorsModule,
     PatientsModule,
     SpecializationsModule,
+    FeedbacksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

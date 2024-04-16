@@ -9,7 +9,10 @@ import { AppointmentsService } from 'src/appointments/appointments.service';
 import { CreateAppointmentDto } from 'src/appointments/dto/create-appointment.dto';
 import { ResponseData } from 'src/common/global/responde.data';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
-import { HtppMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
+import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
+import { CreateFeedbackDto } from 'src/feedbacks/dto/create-feedback.dto';
+import { Feedback } from 'src/feedbacks/entities/feedback.entity';
+import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -17,6 +20,7 @@ export class PatientsController {
   constructor(
     private readonly patientsService: PatientsService,
     private readonly appointmentsService: AppointmentsService,
+    private readonly feedbackService: FeedbacksService,
   ) { }
 
   @Get('profile')
@@ -32,7 +36,18 @@ export class PatientsController {
     try {
       return await this.appointmentsService.create(req.user, createAppointmentDto);
     } catch (error) {
-      return new ResponseData<Appointment>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HtppMessage.INTERNAL_SERVER_ERROR, error);
+      return new ResponseData<Appointment>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error);
+    }
+  }
+
+  @Post('/feedback/create')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.PATIENT)
+  async patientCreateFeedback(@Req() req, @Body() createFeedbackDto: CreateFeedbackDto): Promise<ResponseData<Feedback>> {
+    try {
+      return new ResponseData<Feedback>(await this.feedbackService.create(req.user, createFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
+    } catch (error) {
+      return new ResponseData<Feedback>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error.message);
     }
   }
 }

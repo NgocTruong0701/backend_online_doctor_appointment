@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { Patient } from 'src/patients/entities/patient.entity';
 import { ResponseData } from 'src/common/global/responde.data';
-import { HtppMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
+import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 import { User } from 'src/users/entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Role } from 'src/common/enum/roles.enum';
@@ -73,7 +73,7 @@ export class AppointmentsService {
 
     delete appointment.doctor.account;
     const a = 1;
-    return new ResponseData<Appointment>(appointment, HttpStatusCode.CREATED, HtppMessage.CREATED);
+    return new ResponseData<Appointment>(appointment, HttpStatusCode.CREATED, HttpMessage.CREATED);
   }
 
   async comfirmAppointments(user, id: number): Promise<boolean> {

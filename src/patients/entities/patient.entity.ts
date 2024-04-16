@@ -1,4 +1,5 @@
 import { Appointment } from "src/appointments/entities/appointment.entity";
+import { Feedback } from "src/feedbacks/entities/feedback.entity";
 import { User } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
@@ -35,6 +36,9 @@ export class Patient {
     @OneToOne(() => User, (user) => user.patient)
     account: User;
 
-    @OneToMany(() => Appointment, (appointment) => appointment.patient)
+    @OneToMany(() => Appointment, (appointment) => appointment.patient, {eager: true})
     appointments: Patient[];
+
+    @OneToMany(() => Feedback, (feedback) => feedback.patient, {eager: true})
+    feedbacks: Feedback[];
 }

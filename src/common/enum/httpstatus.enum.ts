@@ -49,7 +49,7 @@ export enum HttpStatusCode {
     HTTP_VERSION_NOT_SUPPORTED = 505
 }
 
-export enum HtppMessage {
+export enum HttpMessage {
     CONTINUE = "Continue",
     SWITCHING_PROTOCOLS = "Switching Protocols",
     PROCESSING = "Processing",

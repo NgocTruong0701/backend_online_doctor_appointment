@@ -1,4 +1,5 @@
 import { Appointment } from "src/appointments/entities/appointment.entity";
+import { Feedback } from "src/feedbacks/entities/feedback.entity";
 import { Specialization } from "src/specializations/entities/specialization.entity";
 import { User } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -43,4 +44,7 @@ export class Doctor {
 
     @OneToMany(() => Appointment, (appointment) => appointment.doctor)
     appointments: Appointment[];
+
+    @OneToMany(() => Feedback, (feedback) => feedback.doctor)
+    feedbacks: Feedback[];
 }

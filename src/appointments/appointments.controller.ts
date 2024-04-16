@@ -6,7 +6,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/common/enum/roles.enum';
 import { ResponseData } from 'src/common/global/responde.data';
-import { HtppMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
+import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 
 @Controller('appointments')
 @ApiTags('appointments')
@@ -24,9 +24,9 @@ export class AppointmentsController {
       const user = req.user;
       const result = await this.appointmentsService.comfirmAppointments(user, id);
       if (result) {
-        return new ResponseData<boolean>(result, HttpStatusCode.OK, HtppMessage.OK);
+        return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
       }
-      return new ResponseData<boolean>(result, HttpStatusCode.BAD_REQUEST, HtppMessage.BAD_REQUEST);
+      return new ResponseData<boolean>(result, HttpStatusCode.BAD_REQUEST, HttpMessage.BAD_REQUEST);
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -43,9 +43,9 @@ export class AppointmentsController {
       const user = req.user;
       const result = await this.appointmentsService.cancelAppointments(user, id);
       if (result) {
-        return new ResponseData<boolean>(result, HttpStatusCode.OK, HtppMessage.OK);
+        return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
       }
-      return new ResponseData<boolean>(result, HttpStatusCode.BAD_REQUEST, HtppMessage.BAD_REQUEST);
+      return new ResponseData<boolean>(result, HttpStatusCode.BAD_REQUEST, HttpMessage.BAD_REQUEST);
     } catch (err) {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
