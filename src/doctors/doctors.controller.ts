@@ -3,6 +3,7 @@ import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('doctors')
 @ApiTags('doctors')
@@ -15,6 +16,7 @@ export class DoctorsController {
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.doctorsService.findAll();
   }
