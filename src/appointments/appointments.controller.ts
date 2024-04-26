@@ -1,17 +1,54 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, ParseIntPipe, HttpException, HttpStatus } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/common/enum/roles.enum';
+import { ResponseData } from 'src/common/global/responde.data';
+import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 
 @Controller('appointments')
 @ApiTags('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentsService: AppointmentsService) {}
+  constructor(private readonly appointmentsService: AppointmentsService) { }
 
-  @Post()
-  create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentsService.create(createAppointmentDto);
+  @Post('/comfirm/:id')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.DOCTOR, Role.PATIENT)
+  async comfirmAppointments(
+    @Req() req,
+    @Param('id', new ParseIntPipe()) id: number
+  ) {
+    try {
+      const user = req.user;
+      const result = await this.appointmentsService.comfirmAppointments(user, id);
+      if (result) {
+        return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
+      }
+      return new ResponseData<boolean>(result, HttpStatusCode.BAD_REQUEST, HttpMessage.BAD_REQUEST);
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('/cancel/:id')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.DOCTOR, Role.PATIENT)
+  async cancelAppointments(
+    @Req() req,
+    @Param('id', new ParseIntPipe()) id: number
+  ) {
+    try {
+      const user = req.user;
+      const result = await this.appointmentsService.cancelAppointments(user, id);
+      if (result) {
+        return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
+      }
+      return new ResponseData<boolean>(result, HttpStatusCode.BAD_REQUEST, HttpMessage.BAD_REQUEST);
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get()
