@@ -1,6 +1,7 @@
 import { AppointmentStatus } from "src/common/enum/appointment.status.enum";
-import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Doctor } from "src/doctors/entities/doctor.entity";
+import { Patient } from "src/patients/entities/patient.entity";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('appointments')
 export class Appointment {
@@ -17,7 +18,18 @@ export class Appointment {
     })
     status: AppointmentStatus;
 
-    // @JoinColumn({name: 'patient_id'})
-    // @ManyToOne(() => User, () => User.appoi)
+    @Column()
+    description: string;
 
+    @CreateDateColumn()
+    created_at: Date;
+
+    @UpdateDateColumn()
+    updated_at: Date;
+
+    @ManyToOne(() => Patient, (patient) => patient.appointments)
+    patient: Patient;
+
+    @ManyToOne(() => Doctor, (doctor) => doctor.appointments)
+    doctor: Doctor;
 }
