@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { VerifyEmailDto } from './dto/verifyemail.dto';
+import { LoginGoogleDto } from './dto/login-google.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
             }
             delete user.password;
 
-            const payload = { sub: user.id, email: user.email, role: user.role,  };
+            const payload = { sub: user.id, email: user.email, role: user.role, };
             return {
                 access_token: await this.jwtService.signAsync(payload),
             }
@@ -53,5 +54,10 @@ export class AuthService {
         }
 
         throw new BadRequestException("Verification code has expired");
+    }
+
+    async loginGoogle(loginGoogleDto: LoginGoogleDto) {
+        console.log(loginGoogleDto);
+        return loginGoogleDto.token;
     }
 }
