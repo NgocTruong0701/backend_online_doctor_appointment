@@ -39,7 +39,9 @@ export class Doctor {
     })
     account: Promise<User>;
 
-    @ManyToOne(() => Specialization, (specialization) => specialization.doctors)
+    @ManyToOne(() => Specialization, (specialization) => specialization.doctors, {
+        eager: true,
+    })
     specialization: Specialization;
 
     @OneToMany(() => Appointment, (appointment) => appointment.doctor)

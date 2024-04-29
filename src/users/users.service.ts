@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +11,8 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Role } from 'src/common/enum/roles.enum';
 import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { Specialization } from 'src/specializations/entities/specialization.entity';
+import { IPayload } from 'src/auth/auth.service';
+import { ResponseData } from 'src/common/global/responde.data';
 
 @Injectable()
 export class UsersService {
@@ -72,9 +74,9 @@ export class UsersService {
         await this.patientRepository.save(patient);
         delete account.password;
       }
-      else if (createUserDto.role === Role.DOCTOR){
+      else if (createUserDto.role === Role.DOCTOR) {
         const doctor = new Doctor();
-        const specialization = await this.specializationRepository.findOneBy({id: createUserDto.specializationId});
+        const specialization = await this.specializationRepository.findOneBy({ id: createUserDto.specializationId });
 
         doctor.specialization = specialization;
         doctor.name = createUserDto.name;
@@ -138,5 +140,32 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async getProfile(payload: IPayload) : Promise<User> {
+    const user = await this.userRepository.findOneBy({ id: payload.sub });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    delete user.password;
+    delete user.created_at;
+    delete user.updated_at;
+    delete user.verificationCode;
+    delete user.verificationExpiry;
+    if (user.patient) {
+      delete user?.patient?.created_at;
+      delete user?.patient?.updated_at;
+      delete user?.patient?.appointments;
+      delete user?.patient?.feedbacks;
+      delete user?.doctor;
+    } else if (user.doctor) {
+      delete user?.doctor?.created_at;
+      delete user?.doctor?.updated_at;
+      delete user?.doctor?.appointments;
+      delete user?.doctor?.specialization.created_at;
+      delete user?.doctor?.specialization.updated_at;
+      delete user?.patient;
+    }
+    return user;
   }
 }

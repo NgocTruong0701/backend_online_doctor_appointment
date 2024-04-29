@@ -57,12 +57,11 @@ export class AuthController {
 
     @Post('login-google')
     @Public()
-    async loginGoogle(@Body() loginGoogleDto: LoginGoogleDto) {
+    async loginGoogle(@Body() loginGoogleDto: LoginGoogleDto): Promise<{ access_token: string }> {
         try {
-            const result = await this.authService.loginGoogle(loginGoogleDto);
-            return new ResponseData<string>(result, HttpStatusCode.OK, HttpMessage.OK);
+            return await this.authService.loginGoogle(loginGoogleDto);
         } catch (error) {
-            return new ResponseData<string>('Server error', HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error);
+            throw new HttpException(JSON.stringify(error, null, 2), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

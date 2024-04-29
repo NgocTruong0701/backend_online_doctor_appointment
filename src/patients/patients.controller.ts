@@ -13,6 +13,7 @@ import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 import { CreateFeedbackDto } from 'src/feedbacks/dto/create-feedback.dto';
 import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
+import { IPayload } from 'src/auth/auth.service';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -34,7 +35,7 @@ export class PatientsController {
   @Roles(Role.ADMIN, Role.PATIENT)
   async createAppointment(@Req() req, @Body() createAppointmentDto: CreateAppointmentDto): Promise<ResponseData<Appointment>> {
     try {
-      return await this.appointmentsService.create(req.user, createAppointmentDto);
+      return await this.appointmentsService.create(req.user as IPayload, createAppointmentDto);
     } catch (error) {
       return new ResponseData<Appointment>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error);
     }
@@ -45,7 +46,7 @@ export class PatientsController {
   @Roles(Role.PATIENT)
   async patientCreateFeedback(@Req() req, @Body() createFeedbackDto: CreateFeedbackDto): Promise<ResponseData<Feedback>> {
     try {
-      return new ResponseData<Feedback>(await this.feedbackService.create(req.user, createFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
+      return new ResponseData<Feedback>(await this.feedbackService.create(req.user as IPayload, createFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
     } catch (error) {
       return new ResponseData<Feedback>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error.message);
     }

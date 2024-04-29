@@ -9,6 +9,7 @@ import { User } from 'src/users/entities/user.entity';
 import { ResponseData } from 'src/common/global/responde.data';
 import { HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
+import { IPayload } from 'src/auth/auth.service';
 
 @Injectable()
 export class FeedbacksService {
@@ -23,7 +24,7 @@ export class FeedbacksService {
         private userRepository: Repository<User>,
     ) { }
 
-    async create(payload: any, createFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
+    async create(payload: IPayload, createFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
         const userPatient = await this.userRepository.findOneBy({ id: payload.sub });
         const patient = userPatient.patient;
         const doctor = await this.doctorRepository.findOneBy({ id: createFeedbackDto.doctor_id });

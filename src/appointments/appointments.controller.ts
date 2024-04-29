@@ -7,6 +7,7 @@ import { Roles } from 'src/common/decorator/roles.decorator';
 import { Role } from 'src/common/enum/roles.enum';
 import { ResponseData } from 'src/common/global/responde.data';
 import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
+import { IPayload } from 'src/auth/auth.service';
 
 @Controller('appointments')
 @ApiTags('appointments')
@@ -21,7 +22,7 @@ export class AppointmentsController {
     @Param('id', new ParseIntPipe()) id: number
   ) {
     try {
-      const user = req.user;
+      const user = req.user as IPayload;
       const result = await this.appointmentsService.comfirmAppointments(user, id);
       if (result) {
         return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
@@ -40,7 +41,7 @@ export class AppointmentsController {
     @Param('id', new ParseIntPipe()) id: number
   ) {
     try {
-      const user = req.user;
+      const user = req.user as IPayload;
       const result = await this.appointmentsService.cancelAppointments(user, id);
       if (result) {
         return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);

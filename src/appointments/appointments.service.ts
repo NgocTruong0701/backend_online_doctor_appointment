@@ -12,6 +12,7 @@ import { User } from 'src/users/entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Role } from 'src/common/enum/roles.enum';
 import { AppointmentStatus } from 'src/common/enum/appointment.status.enum';
+import { IPayload } from 'src/auth/auth.service';
 
 @Injectable()
 export class AppointmentsService {
@@ -27,7 +28,7 @@ export class AppointmentsService {
     private mailerService: MailerService,
   ) { }
 
-  async create(payload: any, createAppointmentDto: CreateAppointmentDto): Promise<ResponseData<Appointment>> {
+  async create(payload: IPayload, createAppointmentDto: CreateAppointmentDto): Promise<ResponseData<Appointment>> {
     const account = await this.userRepository.findOneBy({ id: payload.sub });
     if (!account) {
       throw new NotFoundException('Patient not found');
@@ -76,7 +77,7 @@ export class AppointmentsService {
     return new ResponseData<Appointment>(appointment, HttpStatusCode.CREATED, HttpMessage.CREATED);
   }
 
-  async comfirmAppointments(user, id: number): Promise<boolean> {
+  async comfirmAppointments(user: IPayload, id: number): Promise<boolean> {
     // Find user account and appointment by id
     const account = await this.userRepository.findOneBy({ id: user.sub });
     const appointment = await this.appointmentRepository.findOneBy({ id: id });
@@ -111,7 +112,7 @@ export class AppointmentsService {
     return false;
   }
 
-  async cancelAppointments(user: any, id: number): Promise<boolean> {
+  async cancelAppointments(user: IPayload, id: number): Promise<boolean> {
     // Find user account and appointment by id
     const account = await this.userRepository.findOneBy({ id: user.sub });
     const appointment = await this.appointmentRepository.findOneBy({ id: id });
