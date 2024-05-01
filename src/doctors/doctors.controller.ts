@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorator/public.decorator';
+import { ResponseData } from 'src/common/global/responde.data';
+import { Doctor } from './entities/doctor.entity';
+import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 
 @Controller('doctors')
 @ApiTags('doctors')
@@ -17,8 +20,13 @@ export class DoctorsController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.doctorsService.findAll();
+  async findAll(): Promise<ResponseData<Doctor[]>> {
+    try{
+      const doctors = await this.doctorsService.findAll();
+      return new ResponseData<Doctor[]>(doctors, HttpStatusCode.OK, HttpMessage.OK);
+    }catch(error){
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get(':id')

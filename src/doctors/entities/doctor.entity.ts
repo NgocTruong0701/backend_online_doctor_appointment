@@ -27,6 +27,12 @@ export class Doctor {
     @Column({ nullable: true })
     address: string;
 
+    @Column({nullable: true})
+    hospital: string;
+
+    @Column({nullable: true})
+    years_experience: number;
+
     @CreateDateColumn()
     created_at: Date;
 

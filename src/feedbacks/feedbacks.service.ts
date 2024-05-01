@@ -61,14 +61,18 @@ export class FeedbacksService {
         return !!result;
     }
 
-    async averageRating(doctor_id: number) {
+    async getAverageRatingByDoctorId(doctor_id: number) {
         const doctor = await this.doctorRepository.findOneBy({ id: doctor_id });
-        const feedbackOfDoctor = await this.feedbackRepository.findBy({ doctor: doctor });
+        const feedbackOfDoctors = await this.feedbackRepository.findBy({doctor: doctor});
+        // const [feedbackOfDoctors, feedbackOfDoctorsCount] = await this.feedbackRepository.findAndCountBy({ doctor: doctor });
 
-        const sumRating = feedbackOfDoctor.reduce((sumRating, currentRating) => sumRating + currentRating.rating, 0);
-        const countFeedback = feedbackOfDoctor.length;
+        const sumRating = feedbackOfDoctors.reduce((sumRating, currentRating) => sumRating + currentRating.rating, 0);
+        const countFeedback = feedbackOfDoctors.length;
         const average = sumRating / countFeedback;
-
-        return Math.round(average * 100) / 100;
+        const response = {
+            averageRating: Math.round(average * 100) / 100,
+            // countFeedback: feedbackOfDoctorsCount,
+        }
+        return response;
     }
 }
