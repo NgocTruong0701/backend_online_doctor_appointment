@@ -61,18 +61,19 @@ export class FeedbacksService {
         return !!result;
     }
 
-    async getAverageRatingByDoctorId(doctor_id: number) {
-        const doctor = await this.doctorRepository.findOneBy({ id: doctor_id });
-        const feedbackOfDoctors = await this.feedbackRepository.findBy({doctor: doctor});
-        // const [feedbackOfDoctors, feedbackOfDoctorsCount] = await this.feedbackRepository.findAndCountBy({ doctor: doctor });
+    async getAverageRatingByDoctorId(doctorId: number) {
+        const result = await this.feedbackRepository
+            .createQueryBuilder('feedback')
+            .select('AVG(feedback.rating)', 'averageRating')
+            .addSelect('COUNT(feedback.id)', 'feedbackCount')
+            .where('feedback.doctorId = :doctorId', { doctorId })
+            .getRawOne();
 
-        const sumRating = feedbackOfDoctors.reduce((sumRating, currentRating) => sumRating + currentRating.rating, 0);
-        const countFeedback = feedbackOfDoctors.length;
-        const average = sumRating / countFeedback;
-        const response = {
-            averageRating: Math.round(average * 100) / 100,
-            // countFeedback: feedbackOfDoctorsCount,
-        }
-        return response;
+        const roundedAverageRating = parseFloat(result.averageRating).toFixed(1);
+
+        return {
+            averageRating: roundedAverageRating,
+            feedbackCount: result.feedbackCount,
+        };
     }
 }

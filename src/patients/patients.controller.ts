@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseIntPipe, HttpException } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
@@ -14,6 +14,8 @@ import { CreateFeedbackDto } from 'src/feedbacks/dto/create-feedback.dto';
 import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
 import { IPayload } from 'src/auth/auth.service';
+import { UpdateResult } from 'typeorm';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -49,6 +51,19 @@ export class PatientsController {
       return new ResponseData<Feedback>(await this.feedbackService.create(req.user as IPayload, createFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
     } catch (error) {
       return new ResponseData<Feedback>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error.message);
+    }
+  }
+
+  @Patch(':id')
+  @ApiBearerAuth('JWT-auth')
+  @Public()
+  @Roles(Role.ADMIN, Role.PATIENT)
+  async update(@Param('id', new ParseIntPipe()) id: number, @Body() updatePatientDto: UpdatePatientDto): Promise<ResponseData<UpdateResult>> {
+    try {
+      const result = await this.patientsService.update(id, updatePatientDto);
+      return new ResponseData<UpdateResult>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 }

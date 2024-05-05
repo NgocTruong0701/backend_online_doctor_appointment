@@ -109,7 +109,7 @@ export class AuthService {
                 access_token: await this.jwtService.signAsync(payload_token),
             }
         } catch (err) {
-            console.error('Error verifying Google ID token:', err.message);
+            console.error('Error verifying Google ID token:', JSON.stringify(err.message, null, 2));
             // Optionally log the entire error object (e.g., console.error(err));
             throw err.message; // Re-throw the error to propagate it upwards
         }

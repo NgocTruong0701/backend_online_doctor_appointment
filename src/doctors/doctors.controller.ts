@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, ParseIntPipe } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -11,7 +11,7 @@ import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 @Controller('doctors')
 @ApiTags('doctors')
 export class DoctorsController {
-  constructor(private readonly doctorsService: DoctorsService) {}
+  constructor(private readonly doctorsService: DoctorsService) { }
 
   @Post()
   create(@Body() createDoctorDto: CreateDoctorDto) {
@@ -21,10 +21,10 @@ export class DoctorsController {
   @Get()
   @Public()
   async findAll(): Promise<ResponseData<Doctor[]>> {
-    try{
+    try {
       const doctors = await this.doctorsService.findAll();
       return new ResponseData<Doctor[]>(doctors, HttpStatusCode.OK, HttpMessage.OK);
-    }catch(error){
+    } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -42,5 +42,29 @@ export class DoctorsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.doctorsService.remove(+id);
+  }
+
+  @Get('/count-patients/:id')
+  @Public()
+  async getCountPatients(@Param('id', new ParseIntPipe()) id: number) {
+    try {
+      const result = await this.doctorsService.getPatientByDoctorId(id);
+      return new ResponseData(result, HttpStatus.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get('/get-timeworking/:id')
+  @Public()
+  async getTimeWorkingByDoctorId(
+    @Param('id', new ParseIntPipe()) id: number
+  ) {
+    try {
+      const result = await this.doctorsService.getTimeWorkingByDoctorId(id);
+      return new ResponseData(result, HttpStatus.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

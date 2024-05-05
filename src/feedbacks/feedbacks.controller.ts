@@ -14,11 +14,11 @@ export class FeedbacksController {
 
     @Get(':doctorId')
     @Public()
-    getAvFeedbackByDoctorId(
+    async getAvFeedbackByDoctorId(
         @Param('doctorId', new ParseIntPipe()) doctorId: number
     ) {
         try {
-            const averageRating = this.feedbackService.getAverageRatingByDoctorId(doctorId);
+            const averageRating = await this.feedbackService.getAverageRatingByDoctorId(doctorId);
             return new ResponseData(averageRating, HttpStatus.OK, HttpMessage.OK);
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);

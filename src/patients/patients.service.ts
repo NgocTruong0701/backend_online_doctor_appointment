@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from './entities/patient.entity';
@@ -13,7 +13,7 @@ export class PatientsService {
     private userRepository: Repository<User>,
     @InjectRepository(Patient)
     private patientRepository: Repository<Patient>,
-  ){}
+  ) { }
   create(createPatientDto: CreatePatientDto) {
     return 'This action adds a new patient';
   }
@@ -33,7 +33,7 @@ export class PatientsService {
     }
     delete user.password;
     const patient = await this.patientRepository.findOne({
-      where: {account: user},
+      where: { account: user },
       relations: {
         account: true
       }
@@ -42,8 +42,8 @@ export class PatientsService {
     return patient;
   }
 
-  update(id: number, updatePatientDto: UpdatePatientDto) {
-    return `This action updates a #${id} patient`;
+  async update(id: number, updatePatientDto: UpdatePatientDto): Promise<UpdateResult> {
+    return await this.patientRepository.update(id, updatePatientDto);
   }
 
   remove(id: number) {
