@@ -56,7 +56,6 @@ export class PatientsController {
 
   @Patch(':id')
   @ApiBearerAuth('JWT-auth')
-  @Public()
   @Roles(Role.ADMIN, Role.PATIENT)
   async update(@Param('id', new ParseIntPipe()) id: number, @Body() updatePatientDto: UpdatePatientDto): Promise<ResponseData<UpdateResult>> {
     try {
