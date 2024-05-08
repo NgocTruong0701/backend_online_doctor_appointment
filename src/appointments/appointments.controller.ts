@@ -8,6 +8,8 @@ import { Role } from 'src/common/enum/roles.enum';
 import { ResponseData } from 'src/common/global/responde.data';
 import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 import { IPayload } from 'src/auth/auth.service';
+import { Appointment } from './entities/appointment.entity';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('appointments')
 @ApiTags('appointments')
@@ -51,6 +53,22 @@ export class AppointmentsController {
       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('/get-by-user/:userId')
+  // @ApiBearerAuth('JWT-auth')
+  // @Roles(Role.DOCTOR, Role.PATIENT)
+  @Public()
+  async getAppointmentByUserId(
+    @Param('userId', new ParseIntPipe()) userId: number
+  ) {
+    try {
+      const result = await this.appointmentsService.getAppointmentByUserId(userId);
+      return new ResponseData<Appointment>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 
   @Get()
   findAll() {

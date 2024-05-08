@@ -149,6 +149,59 @@ export class AppointmentsService {
     return false;
   }
 
+  async getAppointmentByUserId(userId: number): Promise<Appointment[]> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    let appointments = null;
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role === Role.PATIENT) {
+      // Lấy danh sách lịch hẹn của bệnh nhân
+      appointments = await this.appointmentRepository.find({
+        where: { patient: { id: user.patient.id } },
+        relations: ['doctor'], // Nạp thông tin bác sĩ liên quan
+        select: {
+          id: true,
+          date: true,
+          status: true,
+          description: true,
+          doctor: {
+            id: true,
+            address: true,
+            name: true,
+            avatar: true,
+            specialization: {
+              id: true,
+              name: true,
+              description: true,
+            }
+          }
+        }
+      });
+    } else if (user.role === Role.DOCTOR) {
+      // Lấy danh sách lịch hẹn của bác sĩ
+      appointments = await this.appointmentRepository.find({
+        where: { doctor: { id: user.doctor.id } },
+        relations: ['patient'],
+        select: {
+          patient: {
+            id: true,
+            address: true,
+            name: true,
+            avatar: true,
+            gender: true,
+          }
+        } // Nạp thông tin bệnh nhân liên quan
+      });
+    }
+    else {
+      throw new BadRequestException('Invalid user role');
+    }
+    return appointments;
+  }
+
   findAll() {
     return `This action returns all appointments`;
   }
