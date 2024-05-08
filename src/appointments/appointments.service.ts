@@ -13,6 +13,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Role } from 'src/common/enum/roles.enum';
 import { AppointmentStatus } from 'src/common/enum/appointment.status.enum';
 import { IPayload } from 'src/auth/auth.service';
+import { PackageAppointment } from 'src/package-appointments/entities/package-appointment.entity';
 
 @Injectable()
 export class AppointmentsService {
@@ -25,6 +26,8 @@ export class AppointmentsService {
     private patientRepository: Repository<Patient>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(PackageAppointment)
+    private packageAppointmentRepository: Repository<PackageAppointment>,
     private mailerService: MailerService,
   ) { }
 
@@ -39,12 +42,19 @@ export class AppointmentsService {
     }
     const appointment = new Appointment();
     const doctorAcount = await doctor.account;
+    const packageAppointment = await this.packageAppointmentRepository.findOneBy({ id: createAppointmentDto.packageAppointmentId });
+
+    if (!packageAppointment) {
+      throw new NotFoundException('Patient not found');
+    }
 
     appointment.date = createAppointmentDto.date;
     appointment.description = createAppointmentDto.description;
     delete (await doctor.account).password;
     appointment.doctor = doctor;
     appointment.patient = account.patient;
+    appointment.duration = createAppointmentDto.duration;
+    appointment.packageAppointment = packageAppointment;
 
     await this.appointmentRepository.save(appointment);
 

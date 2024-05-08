@@ -19,8 +19,11 @@ export class Appointment {
     })
     status: AppointmentStatus;
 
-    @Column()
+    @Column({nullable: true})
     description: string;
+
+    @Column()
+    duration: number;
 
     @CreateDateColumn()
     created_at: Date;

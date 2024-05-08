@@ -39,7 +39,7 @@ export class PatientsController {
     try {
       return await this.appointmentsService.create(req.user as IPayload, createAppointmentDto);
     } catch (error) {
-      return new ResponseData<Appointment>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error);
+      throw new HttpException(error.message, error.status);
     }
   }
 
