@@ -21,7 +21,7 @@ export class FeedbacksController {
             const averageRating = await this.feedbackService.getAverageRatingByDoctorId(doctorId);
             return new ResponseData(averageRating, HttpStatus.OK, HttpMessage.OK);
         } catch (err) {
-            throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(err.message, err.status);
         }
     }
 }

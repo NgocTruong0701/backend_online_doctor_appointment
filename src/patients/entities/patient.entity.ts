@@ -36,9 +36,9 @@ export class Patient {
     @OneToOne(() => User, (user) => user.patient)
     account: User;
 
-    @OneToMany(() => Appointment, (appointment) => appointment.patient, {eager: true})
+    @OneToMany(() => Appointment, (appointment) => appointment.patient)
     appointments: Patient[];
 
-    @OneToMany(() => Feedback, (feedback) => feedback.patient, {eager: true})
+    @OneToMany(() => Feedback, (feedback) => feedback.patient)
     feedbacks: Feedback[];
 }

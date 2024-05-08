@@ -73,43 +73,7 @@ export class AppointmentsService {
     });
 
     delete appointment.doctor.account;
-    const a = 1;
     return new ResponseData<Appointment>(appointment, HttpStatusCode.CREATED, HttpMessage.CREATED);
-  }
-
-  async comfirmAppointments(user: IPayload, id: number): Promise<boolean> {
-    // Find user account and appointment by id
-    const account = await this.userRepository.findOneBy({ id: user.sub });
-    const appointment = await this.appointmentRepository.findOneBy({ id: id });
-
-    // Check if appointment exists and if the appointment date has passed
-    if (!appointment || appointment.date.getTime() < Date.now()) {
-      throw new BadRequestException('The current time has passed the appointment date.');
-    }
-
-    // Confirm appointment based on user role
-    if (account.role === Role.PATIENT || account.role === Role.DOCTOR) {
-      // Update appointment status based on its current status
-      switch (appointment.status) {
-        case AppointmentStatus.PENDING:
-          appointment.status = (account.role === Role.PATIENT) ? AppointmentStatus.PATIENT_COMFIRMED : AppointmentStatus.DOCTOR_COMFIRMED;
-          break;
-        case AppointmentStatus.DOCTOR_COMFIRMED:
-        case AppointmentStatus.COMFIRMED:
-        case AppointmentStatus.PATIENT_COMFIRMED:
-          appointment.status = AppointmentStatus.COMFIRMED;
-          break;
-        default:
-          throw new ConflictException('The appointment has been canceled and cannot be confirmed.');
-      }
-
-      // Update appointment status in the repository
-      await this.appointmentRepository.update(appointment.id, appointment);
-      return true;
-    }
-
-    // If the user role is neither patient nor doctor, return false
-    return false;
   }
 
   async cancelAppointments(user: IPayload, id: number): Promise<boolean> {
@@ -126,15 +90,12 @@ export class AppointmentsService {
     if (account.role === Role.PATIENT || account.role === Role.DOCTOR) {
       // Update appointment status based on its current status
       switch (appointment.status) {
-        case AppointmentStatus.PENDING:
-        case AppointmentStatus.PATIENT_COMFIRMED:
-        case AppointmentStatus.DOCTOR_COMFIRMED:
-          appointment.status = (account.role === Role.PATIENT) ? AppointmentStatus.PATIENT_CANCELLED : AppointmentStatus.DOCTOR_CANCELLED;
+        case AppointmentStatus.UPCOMING:
+          appointment.status = AppointmentStatus.CANCELLED;
           break;
-        case AppointmentStatus.COMFIRMED:
-          throw new ConflictException('The appointment has been confirmed and cannot be canceled.');
-        case AppointmentStatus.DOCTOR_CANCELLED:
-        case AppointmentStatus.PATIENT_CANCELLED:
+        case AppointmentStatus.COMPLETED:
+          throw new ConflictException('The appointment has been completed and cannot be canceled.');
+        case AppointmentStatus.CANCELLED:
           throw new ConflictException('The appointment has already been canceled.');
         default:
           throw new ConflictException('Invalid appointment status.');
@@ -149,7 +110,7 @@ export class AppointmentsService {
     return false;
   }
 
-  async getAppointmentByUserId(userId: number): Promise<Appointment[]> {
+  async getAppointmentByUserId(userId: number, status: string): Promise<Appointment[]> {
     const user = await this.userRepository.findOneBy({ id: userId });
     let appointments = null;
 
@@ -157,16 +118,33 @@ export class AppointmentsService {
       throw new NotFoundException('User not found');
     }
 
+    const statusKey = Object.keys(AppointmentStatus).find(key => AppointmentStatus[key] === status);
+
     if (user.role === Role.PATIENT) {
       // Lấy danh sách lịch hẹn của bệnh nhân
       appointments = await this.appointmentRepository.find({
-        where: { patient: { id: user.patient.id } },
-        relations: ['doctor'], // Nạp thông tin bác sĩ liên quan
+        where: {
+          patient: { id: user.patient.id },
+          status: AppointmentStatus[statusKey]
+        },
+        relations: ['doctor', 'packageAppointment', 'patient'], // Nạp thông tin bác sĩ liên quan
         select: {
           id: true,
           date: true,
           status: true,
           description: true,
+          packageAppointment: {
+            id: true,
+            name: true,
+            price: true,
+          },
+          patient: {
+            id: true,
+            address: true,
+            name: true,
+            avatar: true,
+            gender: true,
+          },
           doctor: {
             id: true,
             address: true,
@@ -183,9 +161,32 @@ export class AppointmentsService {
     } else if (user.role === Role.DOCTOR) {
       // Lấy danh sách lịch hẹn của bác sĩ
       appointments = await this.appointmentRepository.find({
-        where: { doctor: { id: user.doctor.id } },
-        relations: ['patient'],
+        where: {
+          doctor: { id: user.doctor.id },
+          status: AppointmentStatus[statusKey]
+        },
+        relations: ['patient', 'packageAppointment', 'doctor'],
         select: {
+          id: true,
+          date: true,
+          status: true,
+          description: true,
+          packageAppointment: {
+            id: true,
+            name: true,
+            price: true,
+          },
+          doctor: {
+            id: true,
+            address: true,
+            name: true,
+            avatar: true,
+            specialization: {
+              id: true,
+              name: true,
+              description: true,
+            }
+          },
           patient: {
             id: true,
             address: true,

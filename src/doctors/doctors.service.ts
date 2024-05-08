@@ -46,7 +46,7 @@ export class DoctorsService {
   }
 
   async getPatientByDoctorId(doctorId: number) {
-    const status = AppointmentStatus.COMFIRMED;
+    const status = AppointmentStatus.COMPLETED;
     const result = await this.appointmentRepository.createQueryBuilder('appointment')
       .select('COUNT(appointment.id)', 'appointmentCount')
       .where('appointment.doctorId = :doctorId', { doctorId })

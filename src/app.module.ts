@@ -14,6 +14,7 @@ import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { SpecializationsModule } from './specializations/specializations.module';
 import { FeedbacksModule } from './feedbacks/feedbacks.module';
+import { PackageAppointmentsModule } from './package-appointments/package-appointments.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { FeedbacksModule } from './feedbacks/feedbacks.module';
     PatientsModule,
     SpecializationsModule,
     FeedbacksModule,
+    PackageAppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

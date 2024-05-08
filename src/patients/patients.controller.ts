@@ -62,7 +62,7 @@ export class PatientsController {
       const result = await this.patientsService.update(id, updatePatientDto);
       return new ResponseData<UpdateResult>(result, HttpStatusCode.OK, HttpMessage.OK);
     } catch (err) {
-      throw new HttpException(err.message, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.message, err.status);
     }
   }
 }
