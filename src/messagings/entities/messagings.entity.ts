@@ -2,7 +2,7 @@ import { Appointment } from "src/appointments/entities/appointment.entity";
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('messagings')
-export class Doctor {
+export class Messaging {
     @PrimaryGeneratedColumn()
     id: number;
 

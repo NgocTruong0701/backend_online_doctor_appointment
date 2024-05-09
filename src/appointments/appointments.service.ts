@@ -14,6 +14,7 @@ import { Role } from 'src/common/enum/roles.enum';
 import { AppointmentStatus } from 'src/common/enum/appointment.status.enum';
 import { IPayload } from 'src/auth/auth.service';
 import { PackageAppointment } from 'src/package-appointments/entities/package-appointment.entity';
+import { Messaging } from 'src/messagings/entities/messagings.entity';
 
 @Injectable()
 export class AppointmentsService {
@@ -28,6 +29,8 @@ export class AppointmentsService {
     private userRepository: Repository<User>,
     @InjectRepository(PackageAppointment)
     private packageAppointmentRepository: Repository<PackageAppointment>,
+    @InjectRepository(Messaging)
+    private messagingRepository: Repository<Messaging>,
     private mailerService: MailerService,
   ) { }
 
@@ -57,6 +60,13 @@ export class AppointmentsService {
     appointment.packageAppointment = packageAppointment;
 
     await this.appointmentRepository.save(appointment);
+
+    const message = new Messaging();
+    message.name = `Appointment of ${account.patient.name} and ${doctor.name} - ${createAppointmentDto.date}`;
+    message.numberOne = account.patient.id;
+    message.numberTwo = doctor.id;
+    message.appointment = appointment;
+    await this.messagingRepository.save(message);
 
     await this.mailerService.sendMail({
       to: account.email,

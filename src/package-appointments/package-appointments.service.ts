@@ -21,8 +21,9 @@ export class PackageAppointmentsService {
     return packageAppointment;
   }
 
-  findAll() {
-    return `This action returns all packageAppointments`;
+  async findAll(): Promise<PackageAppointment[]> {
+    const packageAppointments = await this.packageAppointmentRepository.find();
+    return packageAppointments;
   }
 
   findOne(id: number) {

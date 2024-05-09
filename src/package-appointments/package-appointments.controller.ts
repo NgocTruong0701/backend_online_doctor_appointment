@@ -26,8 +26,14 @@ export class PackageAppointmentsController {
   }
 
   @Get()
-  findAll() {
-    return this.packageAppointmentsService.findAll();
+  @Public()
+  async findAll() {
+    try {
+      const result = await this.packageAppointmentsService.findAll();
+      return new ResponseData<PackageAppointment[]>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
   }
 
   @Get(':id')

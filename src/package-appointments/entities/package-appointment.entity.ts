@@ -12,6 +12,12 @@ export class PackageAppointment {
     @Column()
     price: number;
 
+    @Column({ nullable: true })
+    icon: string;
+
+    @Column({ nullable: true })
+    description: string;
+
     @OneToMany(() => Appointment, (appointment) => appointment.packageAppointment)
     appointments: Appointment;
 }
