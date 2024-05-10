@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, ParseIntPipe, Query } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorator/public.decorator';
 import { ResponseData } from 'src/common/global/responde.data';
 import { Doctor } from './entities/doctor.entity';
@@ -20,18 +20,32 @@ export class DoctorsController {
 
   @Get()
   @Public()
-  async findAll(): Promise<ResponseData<Doctor[]>> {
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Page number for pagination',
+  })
+  async findAll(
+    @Query('limit') limit?: number
+  ): Promise<ResponseData<Doctor[]>> {
     try {
-      const doctors = await this.doctorsService.findAll();
+      const doctors = await this.doctorsService.getFormattedDoctorsOrderByAverageRating(limit);
       return new ResponseData<Doctor[]>(doctors, HttpStatusCode.OK, HttpMessage.OK);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.doctorsService.findOne(+id);
+  @Get('/speciality/:specialityId')
+  @Public()
+  async findBySpeciality(@Param('specialityId', new ParseIntPipe()) specialityId: number): Promise<ResponseData<Doctor[]>> {
+    try {
+      const doctors = await this.doctorsService.findBySpeciality(specialityId);
+      return new ResponseData<Doctor[]>(doctors, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Patch(':id')

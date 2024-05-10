@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseIntPipe, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseIntPipe, HttpException, Query } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
@@ -16,6 +16,8 @@ import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
 import { IPayload } from 'src/auth/auth.service';
 import { UpdateResult } from 'typeorm';
 import { Public } from 'src/common/decorator/public.decorator';
+import { Doctor } from 'src/doctors/entities/doctor.entity';
+import { FavoriteDoctorDto } from './dto/favorite-doctor.dto';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -65,4 +67,33 @@ export class PatientsController {
       throw new HttpException(err.message, err.status);
     }
   }
+
+  @Get('get-doctor-favorite')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.PATIENT)
+  async getDoctorFavorite(
+    @Req() req
+  ) {
+    try {
+      const result = await this.patientsService.getDoctorFavorite(req.user as IPayload);
+      return new ResponseData<Doctor>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post('favorite-doctor')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.PATIENT)
+  async favoriteDoctor(
+    @Body() favoriteDoctorDto: FavoriteDoctorDto
+  ) {
+    try {
+      const result = await this.patientsService.favoriteDoctor(favoriteDoctorDto);
+      return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
 }

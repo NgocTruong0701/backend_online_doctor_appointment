@@ -6,10 +6,12 @@ import { Doctor } from './entities/doctor.entity';
 import { Specialization } from 'src/specializations/entities/specialization.entity';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
 import { User } from 'src/users/entities/user.entity';
+import { FeedbacksModule } from 'src/feedbacks/feedbacks.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Doctor, Specialization, Appointment, User])
+    TypeOrmModule.forFeature([Doctor, Specialization, Appointment, User]),
+    FeedbacksModule,
   ],
   controllers: [DoctorsController],
   providers: [DoctorsService],
