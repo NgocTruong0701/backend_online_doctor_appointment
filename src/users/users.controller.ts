@@ -59,4 +59,17 @@ export class UsersController {
       throw new HttpException(error.message, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('token-stream-chat')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.PATIENT)
+  async getTokenStreamChat(@Req() request): Promise<ResponseData<string>> {
+    try {
+      const payload = request.user as IPayload;
+      const token = await this.usersService.generateTokenStreamChat(payload);
+      return new ResponseData<string>(token, HttpStatusCode.CREATED, HttpMessage.CREATED);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

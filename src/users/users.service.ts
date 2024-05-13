@@ -13,6 +13,7 @@ import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { Specialization } from 'src/specializations/entities/specialization.entity';
 import { IPayload } from 'src/auth/auth.service';
 import { ResponseData } from 'src/common/global/responde.data';
+import { StreamChat } from 'stream-chat';
 
 @Injectable()
 export class UsersService {
@@ -29,29 +30,33 @@ export class UsersService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<boolean> {
-    const userInDb = await this.userRepository.findOneBy({
-      email: createUserDto.email,
-    });
-
-    // Generate verification code and expiry date
-    const verificationCode = this.generateVerificationCode();
-    const verificationExpiry = this.generateVerificationExpiry();
-
-    if (userInDb && userInDb.verified === true) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
-    }
-
-    else if (userInDb && userInDb.verified === false) {
-      userInDb.verificationCode = verificationCode;
-      userInDb.verificationExpiry = verificationExpiry;
-      await this.userRepository.update({ id: userInDb.id }, userInDb);
-      this.sentMailCode(createUserDto.email, createUserDto.name, verificationCode);
-      return false;
-    }
-
     try {
+      const userInDb = await this.userRepository.findOneBy({
+        email: createUserDto.email,
+      });
+
+      // Generate verification code and expiry date
+      const verificationCode = this.generateVerificationCode();
+      const verificationExpiry = this.generateVerificationExpiry();
       const salt = await bcrypt.genSalt();
       createUserDto.password = await bcrypt.hash(createUserDto.password, salt);
+
+      if (userInDb && userInDb.verified === true) {
+        throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      }
+
+      else if (userInDb && userInDb.verified === false) {
+        await this.userRepository.createQueryBuilder()
+          .update(User)
+          .set({
+            verificationCode: verificationCode,
+            verificationExpiry: verificationExpiry,
+            password: createUserDto.password
+          }).where("id = :id", { id: userInDb.id }).execute();
+
+        this.sentMailCode(createUserDto.email, createUserDto.name, verificationCode);
+        return false;
+      }
 
       const account = new User();
       account.email = createUserDto.email;
@@ -95,7 +100,7 @@ export class UsersService {
       return true;
     }
     catch (error) {
-      throw new HttpException('Have a some error, please contact with admin to fix', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(`Have a some error, please contact with admin to fix: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -113,7 +118,7 @@ export class UsersService {
   private async sentMailCode(email: string, name: string, code: string) {
     await this.mailerService.sendMail({
       to: email,
-      subject: 'Welcome to my website',
+      subject: 'Welcome to Online Doctor Appointment',
       template: './verifyemail',
       context: {
         name: name,
@@ -142,7 +147,7 @@ export class UsersService {
     return `This action removes a #${id} user`;
   }
 
-  async getProfile(payload: IPayload) : Promise<User> {
+  async getProfile(payload: IPayload): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: payload.sub });
     if (!user) {
       throw new NotFoundException("User not found");
@@ -167,5 +172,21 @@ export class UsersService {
       delete user?.patient;
     }
     return user;
+  }
+
+  async generateTokenStreamChat(payload: IPayload): Promise<string> {
+    const serverClient = StreamChat.getInstance(
+      process.env.STREAM_API_KEY,
+      process.env.STREAM_API_SECRET,
+    );
+    const user = await this.userRepository.findOneBy({ id: payload.sub });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    const { doctor, patient } = user;
+    const account = doctor ? doctor : patient;
+    const token = serverClient.createToken(account.id.toString());
+
+    return token;
   }
 }

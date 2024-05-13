@@ -28,7 +28,7 @@ export class AuthController {
             }
             return new ResponseData<string>('Verification code has been resent', HttpStatusCode.OK, HttpMessage.OK);
         } catch (error) {
-            return new ResponseData<string>(error, HttpStatus.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR);
+            throw new HttpException(error.message, error.status);
         }
     }
 

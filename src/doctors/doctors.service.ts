@@ -82,6 +82,7 @@ export class DoctorsService {
 
     const formattedDoctors = rawDoctors.map(doctor => ({
       ...doctor,
+      averageRating: parseFloat(doctor.averageRating).toFixed(1),
       schedule: DateHelper.formatSchedule(
         doctor.start_day_of_week,
         doctor.time_start,
@@ -150,6 +151,7 @@ export class DoctorsService {
 
     const formattedDoctors = doctorsWithFeedback.map(doctor => ({
       ...doctor,
+      averageRating: parseFloat(doctor.averageRating).toFixed(1),
       schedule: DateHelper.formatSchedule(
         doctor.start_day_of_week,
         doctor.time_start,
