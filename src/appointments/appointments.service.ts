@@ -15,6 +15,7 @@ import { AppointmentStatus } from 'src/common/enum/appointment.status.enum';
 import { IPayload } from 'src/auth/auth.service';
 import { PackageAppointment } from 'src/package-appointments/entities/package-appointment.entity';
 import { Messaging } from 'src/messagings/entities/messagings.entity';
+import { DateHelper } from 'src/common/helper/date.helper';
 
 @Injectable()
 export class AppointmentsService {
@@ -130,97 +131,101 @@ export class AppointmentsService {
     return false;
   }
 
+  async completeAppointment(user: IPayload, id: number): Promise<boolean> {
+    const account = await this.userRepository.findOneBy({ id: user.sub });
+    const appointment = await this.appointmentRepository.findOneBy({ id: id });
+
+    if (account.role === Role.PATIENT || account.role === Role.DOCTOR) {
+      // Update appointment status based on its current status
+      appointment.status = AppointmentStatus.COMPLETED;
+      // Update appointment status in the repository
+      await this.appointmentRepository.update(appointment.id, appointment);
+      return true;
+    }
+
+    return false;
+  }
+
   async getAppointmentByUserId(userId: number, status: string): Promise<Appointment[]> {
     const user = await this.userRepository.findOneBy({ id: userId });
-    let appointments = null;
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const statusKey = Object.keys(AppointmentStatus).find(key => AppointmentStatus[key] === status);
+    const statusKey = Object.keys(AppointmentStatus).find(
+      (key) => AppointmentStatus[key] === status,
+    );
+    if (!statusKey) {
+      throw new BadRequestException('Invalid status');
+    }
+
+    let appointments = null;
 
     if (user.role === Role.PATIENT) {
-      // Lấy danh sách lịch hẹn của bệnh nhân
       appointments = await this.appointmentRepository.find({
         where: {
           patient: { id: user.patient.id },
-          status: AppointmentStatus[statusKey]
+          status: AppointmentStatus[statusKey],
         },
-        relations: ['doctor', 'packageAppointment', 'patient'], // Nạp thông tin bác sĩ liên quan
-        select: {
-          id: true,
-          date: true,
-          status: true,
-          description: true,
-          packageAppointment: {
-            id: true,
-            name: true,
-            price: true,
-          },
-          patient: {
-            id: true,
-            address: true,
-            name: true,
-            avatar: true,
-            gender: true,
-          },
-          doctor: {
-            id: true,
-            address: true,
-            name: true,
-            avatar: true,
-            specialization: {
-              id: true,
-              name: true,
-              description: true,
-            }
-          }
-        }
+        relations: ['doctor', 'packageAppointment', 'patient', 'doctor.feedbacks', 'doctor.specialization'],
       });
     } else if (user.role === Role.DOCTOR) {
-      // Lấy danh sách lịch hẹn của bác sĩ
       appointments = await this.appointmentRepository.find({
         where: {
           doctor: { id: user.doctor.id },
-          status: AppointmentStatus[statusKey]
+          status: AppointmentStatus[statusKey],
         },
-        relations: ['patient', 'packageAppointment', 'doctor'],
-        select: {
-          id: true,
-          date: true,
-          status: true,
-          description: true,
-          packageAppointment: {
-            id: true,
-            name: true,
-            price: true,
-          },
-          doctor: {
-            id: true,
-            address: true,
-            name: true,
-            avatar: true,
-            specialization: {
-              id: true,
-              name: true,
-              description: true,
-            }
-          },
-          patient: {
-            id: true,
-            address: true,
-            name: true,
-            avatar: true,
-            gender: true,
-          }
-        } // Nạp thông tin bệnh nhân liên quan
+        relations: ['patient', 'packageAppointment', 'doctor', 'doctor.feedbacks', 'doctor.specialization'],
       });
-    }
-    else {
+    } else {
       throw new BadRequestException('Invalid user role');
     }
-    return appointments;
+
+    // Format doctor data
+    const formattedAppointments = appointments.map((appointment) => {
+      const doctor = appointment.doctor;
+
+      const averageRating =
+        doctor.feedbacks.reduce((sum, feedback) => sum + feedback.rating, 0) /
+        doctor.feedbacks.length;
+
+      const formattedDoctor = {
+        created_at: doctor.created_at,
+        updated_at: doctor.updated_at,
+        specialization_id: doctor.specialization.id,
+        specialization_name: doctor.specialization.name,
+        specialization_description: doctor.specialization.description,
+        specialization_icon: doctor.specialization.icon,
+        id: doctor.id,
+        name: doctor.name,
+        date_of_birth: doctor.date_of_birth,
+        gender: doctor.gender,
+        phone_number: doctor.phone_number,
+        avatar: doctor.avatar,
+        address: doctor.address,
+        account: doctor.account,
+        specializationId: doctor.specializationId,
+        hospital: doctor.hospital,
+        years_experience: doctor.years_experience,
+        description: doctor.description,
+        averageRating: averageRating.toFixed(1),
+        feedbackCount: doctor.feedbacks.length.toString(),
+        schedule: DateHelper.formatSchedule(
+          doctor.start_day_of_week,
+          doctor.time_start,
+          doctor.end_day_of_week,
+          doctor.time_end,
+        ),
+      };
+
+      return {
+        ...appointment,
+        doctor: formattedDoctor,
+      };
+    });
+
+    return formattedAppointments;
   }
 
   findAll() {

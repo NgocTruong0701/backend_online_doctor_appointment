@@ -35,6 +35,25 @@ export class AppointmentsController {
     }
   }
 
+  @Post('/complete/:id')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.DOCTOR, Role.PATIENT)
+  async completeAppointments(
+    @Req() req,
+    @Param('id', new ParseIntPipe()) id: number
+  ) {
+    try {
+      const user = req.user as IPayload;
+      const result = await this.appointmentsService.completeAppointment(user, id);
+      if (result) {
+        return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
+      }
+      return new ResponseData<boolean>(result, HttpStatusCode.BAD_REQUEST, HttpMessage.BAD_REQUEST);
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
   @Get('/get-by-user/:userId')
   @ApiBearerAuth('JWT-auth')
   @Roles(Role.ADMIN, Role.DOCTOR, Role.PATIENT)
