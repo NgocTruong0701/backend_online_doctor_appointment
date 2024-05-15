@@ -19,7 +19,7 @@ export class CreatePatientDto {
 
     @ApiProperty()
     @IsOptional()
-    @IsPhoneNumber()
+    @IsString()
     phone_number: string;
 
     @ApiProperty()

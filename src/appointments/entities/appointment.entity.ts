@@ -19,10 +19,10 @@ export class Appointment {
     })
     status: AppointmentStatus;
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     description: string;
 
-    @Column()
+    @Column({ type: 'float' })
     duration: number;
 
     @CreateDateColumn()

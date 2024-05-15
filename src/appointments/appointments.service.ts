@@ -69,6 +69,9 @@ export class AppointmentsService {
     message.appointment = appointment;
     await this.messagingRepository.save(message);
 
+    const packageName = await this.packageAppointmentRepository.findOneBy({ id: createAppointmentDto.packageAppointmentId });
+    const duration = createAppointmentDto.duration * 60;
+
     await this.mailerService.sendMail({
       to: account.email,
       subject: `Confirmation of Online Consultation/Check-up Appointment for ${account.patient.name} on ${createAppointmentDto.date}`,
@@ -77,7 +80,9 @@ export class AppointmentsService {
         patient: account.patient.name,
         date: createAppointmentDto.date,
         doctor: doctor.name,
-        description: createAppointmentDto.description
+        description: createAppointmentDto.description,
+        package: packageName.name,
+        duration: duration
       },
     });
 
@@ -89,7 +94,9 @@ export class AppointmentsService {
         patient: account.patient.name,
         date: createAppointmentDto.date,
         doctor: doctor.name,
-        description: createAppointmentDto.description
+        description: createAppointmentDto.description,
+        package: packageName.name,
+        duration: duration
       },
     });
 
