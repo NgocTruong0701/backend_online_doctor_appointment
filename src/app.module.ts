@@ -15,7 +15,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { SpecializationsModule } from './specializations/specializations.module';
 import { FeedbacksModule } from './feedbacks/feedbacks.module';
 import { PackageAppointmentsModule } from './package-appointments/package-appointments.module';
-import { MessagingsModule } from './messagings/messagings.module';
+import { AppointmentContactsModule } from './appointment-contacts/appointment-contacts.module';
 
 @Module({
   imports: [
@@ -71,7 +71,7 @@ import { MessagingsModule } from './messagings/messagings.module';
     SpecializationsModule,
     FeedbacksModule,
     PackageAppointmentsModule,
-    MessagingsModule,
+    AppointmentContactsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

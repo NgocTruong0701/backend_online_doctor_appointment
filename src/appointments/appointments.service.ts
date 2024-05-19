@@ -14,8 +14,8 @@ import { Role } from 'src/common/enum/roles.enum';
 import { AppointmentStatus } from 'src/common/enum/appointment.status.enum';
 import { IPayload } from 'src/auth/auth.service';
 import { PackageAppointment } from 'src/package-appointments/entities/package-appointment.entity';
-import { Messaging } from 'src/messagings/entities/messagings.entity';
 import { DateHelper } from 'src/common/helper/date.helper';
+import { AppointmentContact } from 'src/appointment-contacts/entities/appointment-contacts.entity';
 
 @Injectable()
 export class AppointmentsService {
@@ -30,8 +30,8 @@ export class AppointmentsService {
     private userRepository: Repository<User>,
     @InjectRepository(PackageAppointment)
     private packageAppointmentRepository: Repository<PackageAppointment>,
-    @InjectRepository(Messaging)
-    private messagingRepository: Repository<Messaging>,
+    @InjectRepository(AppointmentContact)
+    private appointmentContactRepository: Repository<AppointmentContact>,
     private mailerService: MailerService,
   ) { }
 
@@ -62,12 +62,12 @@ export class AppointmentsService {
 
     await this.appointmentRepository.save(appointment);
 
-    const message = new Messaging();
+    const message = new AppointmentContact();
     message.name = `Appointment of ${account.patient.name} and ${doctor.name} - ${createAppointmentDto.date}`;
     message.numberOne = account.patient.id;
     message.numberTwo = doctor.id;
     message.appointment = appointment;
-    await this.messagingRepository.save(message);
+    await this.appointmentContactRepository.save(message);
 
     const packageName = await this.packageAppointmentRepository.findOneBy({ id: createAppointmentDto.packageAppointmentId });
     const duration = createAppointmentDto.duration * 60;

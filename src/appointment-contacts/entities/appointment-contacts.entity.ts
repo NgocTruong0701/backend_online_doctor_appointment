@@ -1,8 +1,8 @@
 import { Appointment } from "src/appointments/entities/appointment.entity";
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('messagings')
-export class Messaging {
+@Entity('appointment-contacts')
+export class AppointmentContact {
     @PrimaryGeneratedColumn()
     id: number;
 
