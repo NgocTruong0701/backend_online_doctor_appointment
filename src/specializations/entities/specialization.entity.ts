@@ -12,6 +12,9 @@ export class Specialization {
     @Column()
     description: string;
 
+    @Column()
+    icon: string;
+
     @CreateDateColumn()
     created_at: Date;
 

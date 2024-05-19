@@ -1,7 +1,8 @@
 import { Appointment } from "src/appointments/entities/appointment.entity";
+import { Doctor } from "src/doctors/entities/doctor.entity";
 import { Feedback } from "src/feedbacks/entities/feedback.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, Table, UpdateDateColumn } from "typeorm";
 
 @Entity('patients')
 export class Patient {
@@ -36,9 +37,13 @@ export class Patient {
     @OneToOne(() => User, (user) => user.patient)
     account: User;
 
-    @OneToMany(() => Appointment, (appointment) => appointment.patient, {eager: true})
+    @OneToMany(() => Appointment, (appointment) => appointment.patient)
     appointments: Patient[];
 
-    @OneToMany(() => Feedback, (feedback) => feedback.patient, {eager: true})
+    @OneToMany(() => Feedback, (feedback) => feedback.patient)
     feedbacks: Feedback[];
+
+    @ManyToMany(() => Doctor, { cascade: true })
+    @JoinTable()
+    doctors: Doctor[];
 }

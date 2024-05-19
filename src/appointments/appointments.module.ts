@@ -6,13 +6,15 @@ import { Appointment } from './entities/appointment.entity';
 import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { Patient } from 'src/patients/entities/patient.entity';
 import { User } from 'src/users/entities/user.entity';
+import { PackageAppointment } from 'src/package-appointments/entities/package-appointment.entity';
+import { AppointmentContact } from 'src/appointment-contacts/entities/appointment-contacts.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Appointment, Doctor, Patient, User]),
+    TypeOrmModule.forFeature([Appointment, Doctor, Patient, User, PackageAppointment, AppointmentContact]),
   ],
   controllers: [AppointmentsController],
   providers: [AppointmentsService],
   exports: [AppointmentsService],
 })
-export class AppointmentsModule {}
+export class AppointmentsModule { }

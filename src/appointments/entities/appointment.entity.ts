@@ -1,5 +1,6 @@
 import { AppointmentStatus } from "src/common/enum/appointment.status.enum";
 import { Doctor } from "src/doctors/entities/doctor.entity";
+import { PackageAppointment } from "src/package-appointments/entities/package-appointment.entity";
 import { Patient } from "src/patients/entities/patient.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
@@ -8,18 +9,21 @@ export class Appointment {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: "date" })
+    @Column({ type: "datetime", nullable: true })
     date: Date;
 
     @Column({
         type: "enum",
         enum: AppointmentStatus,
-        default: AppointmentStatus.PENDING
+        default: AppointmentStatus.UPCOMING
     })
     status: AppointmentStatus;
 
-    @Column()
+    @Column({ nullable: true })
     description: string;
+
+    @Column({ type: 'float' })
+    duration: number;
 
     @CreateDateColumn()
     created_at: Date;
@@ -32,4 +36,7 @@ export class Appointment {
 
     @ManyToOne(() => Doctor, (doctor) => doctor.appointments)
     doctor: Doctor;
+
+    @ManyToOne(() => PackageAppointment, (packageAppointment) => packageAppointment.appointments)
+    packageAppointment: PackageAppointment;
 }

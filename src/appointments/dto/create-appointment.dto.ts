@@ -21,4 +21,14 @@ export class CreateAppointmentDto {
     @IsNotEmpty()
     @IsNumber()
     doctorId: number;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsNumber()
+    packageAppointmentId: number;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsNumber()
+    duration: number;
 }

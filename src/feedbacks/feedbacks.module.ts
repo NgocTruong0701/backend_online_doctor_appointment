@@ -5,10 +5,11 @@ import { Feedback } from './entities/feedback.entity';
 import { Patient } from 'src/patients/entities/patient.entity';
 import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { User } from 'src/users/entities/user.entity';
+import { FeedbacksController } from './feedbacks.controller';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Feedback, Patient, Doctor, User])],
-    controllers: [],
+    controllers: [FeedbacksController],
     providers: [FeedbacksService],
     exports: [FeedbacksService],
 })

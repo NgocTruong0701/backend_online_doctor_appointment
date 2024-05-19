@@ -10,6 +10,7 @@ import { RolesGuard } from './roles.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { DoctorsModule } from 'src/doctors/doctors.module';
+import { Patient } from 'src/patients/entities/patient.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { DoctorsModule } from 'src/doctors/doctors.module';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Patient]),
     UsersModule,
     ConfigModule,
     DoctorsModule,
