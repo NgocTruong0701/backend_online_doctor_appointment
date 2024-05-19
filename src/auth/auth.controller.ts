@@ -8,6 +8,7 @@ import { Public } from 'src/common/decorator/public.decorator';
 import { VerifyEmailDto } from './dto/verifyemail.dto';
 import { ResponseData } from 'src/common/global/responde.data';
 import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
+import { LoginGoogleDto } from './dto/login-google.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -27,7 +28,7 @@ export class AuthController {
             }
             return new ResponseData<string>('Verification code has been resent', HttpStatusCode.OK, HttpMessage.OK);
         } catch (error) {
-            return new ResponseData<string>(error, HttpStatus.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR);
+            throw new HttpException(error.message, error.status);
         }
     }
 
@@ -45,12 +46,22 @@ export class AuthController {
     @Public()
     async verifyCode(@Body() verifyEmailDto: VerifyEmailDto) {
         try {
-            const reuslt = await this.authService.verifyCode(verifyEmailDto)
-            if (reuslt) {
+            const result = await this.authService.verifyCode(verifyEmailDto);
+            if (result) {
                 return new ResponseData<string>('Email has been verified', HttpStatusCode.OK, HttpMessage.OK);
             }
-        }catch (error) {
+        } catch (error) {
             return new ResponseData<string>('Server error', HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error);
+        }
+    }
+
+    @Post('login-google')
+    @Public()
+    async loginGoogle(@Body() loginGoogleDto: LoginGoogleDto): Promise<{ access_token: string }> {
+        try {
+            return await this.authService.loginGoogle(loginGoogleDto);
+        } catch (error) {
+            throw new HttpException(JSON.stringify(error, null, 2), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

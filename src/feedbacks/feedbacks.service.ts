@@ -9,6 +9,7 @@ import { User } from 'src/users/entities/user.entity';
 import { ResponseData } from 'src/common/global/responde.data';
 import { HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
+import { IPayload } from 'src/auth/auth.service';
 
 @Injectable()
 export class FeedbacksService {
@@ -23,7 +24,7 @@ export class FeedbacksService {
         private userRepository: Repository<User>,
     ) { }
 
-    async create(payload: any, createFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
+    async create(payload: IPayload, createFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
         const userPatient = await this.userRepository.findOneBy({ id: payload.sub });
         const patient = userPatient.patient;
         const doctor = await this.doctorRepository.findOneBy({ id: createFeedbackDto.doctor_id });
@@ -60,14 +61,19 @@ export class FeedbacksService {
         return !!result;
     }
 
-    async averageRating(doctor_id: number) {
-        const doctor = await this.doctorRepository.findOneBy({ id: doctor_id });
-        const feedbackOfDoctor = await this.feedbackRepository.findBy({ doctor: doctor });
+    async getAverageRatingByDoctorId(doctorId: number) {
+        const result = await this.feedbackRepository
+            .createQueryBuilder('feedback')
+            .select('AVG(feedback.rating)', 'averageRating')
+            .addSelect('COUNT(feedback.id)', 'feedbackCount')
+            .where('feedback.doctorId = :doctorId', { doctorId })
+            .getRawOne();
 
-        const sumRating = feedbackOfDoctor.reduce((sumRating, currentRating) => sumRating + currentRating.rating, 0);
-        const countFeedback = feedbackOfDoctor.length;
-        const average = sumRating / countFeedback;
+        const roundedAverageRating = parseFloat(result.averageRating).toFixed(1);
 
-        return Math.round(average * 100) / 100;
+        return {
+            averageRating: roundedAverageRating,
+            feedbackCount: result.feedbackCount,
+        };
     }
 }

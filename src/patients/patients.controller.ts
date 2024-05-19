@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, ParseIntPipe, HttpException, Query } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
@@ -13,6 +13,11 @@ import { HttpMessage, HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 import { CreateFeedbackDto } from 'src/feedbacks/dto/create-feedback.dto';
 import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 import { FeedbacksService } from 'src/feedbacks/feedbacks.service';
+import { IPayload } from 'src/auth/auth.service';
+import { UpdateResult } from 'typeorm';
+import { Public } from 'src/common/decorator/public.decorator';
+import { Doctor } from 'src/doctors/entities/doctor.entity';
+import { FavoriteDoctorDto } from './dto/favorite-doctor.dto';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -34,9 +39,9 @@ export class PatientsController {
   @Roles(Role.ADMIN, Role.PATIENT)
   async createAppointment(@Req() req, @Body() createAppointmentDto: CreateAppointmentDto): Promise<ResponseData<Appointment>> {
     try {
-      return await this.appointmentsService.create(req.user, createAppointmentDto);
+      return await this.appointmentsService.create(req.user as IPayload, createAppointmentDto);
     } catch (error) {
-      return new ResponseData<Appointment>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error);
+      throw new HttpException(error.message, error.status);
     }
   }
 
@@ -45,9 +50,50 @@ export class PatientsController {
   @Roles(Role.PATIENT)
   async patientCreateFeedback(@Req() req, @Body() createFeedbackDto: CreateFeedbackDto): Promise<ResponseData<Feedback>> {
     try {
-      return new ResponseData<Feedback>(await this.feedbackService.create(req.user, createFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
+      return new ResponseData<Feedback>(await this.feedbackService.create(req.user as IPayload, createFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
     } catch (error) {
       return new ResponseData<Feedback>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error.message);
     }
   }
+
+  @Patch(':id')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.ADMIN, Role.PATIENT)
+  async update(@Param('id', new ParseIntPipe()) id: number, @Body() updatePatientDto: UpdatePatientDto): Promise<ResponseData<UpdateResult>> {
+    try {
+      const result = await this.patientsService.update(id, updatePatientDto);
+      return new ResponseData<UpdateResult>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
+  }
+
+  @Get('get-doctor-favorite')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.PATIENT)
+  async getDoctorFavorite(
+    @Req() req
+  ) {
+    try {
+      const result = await this.patientsService.getDoctorFavorite(req.user as IPayload);
+      return new ResponseData<Doctor>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post('favorite-doctor')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.PATIENT)
+  async favoriteDoctor(
+    @Body() favoriteDoctorDto: FavoriteDoctorDto
+  ) {
+    try {
+      const result = await this.patientsService.favoriteDoctor(favoriteDoctorDto);
+      return new ResponseData<boolean>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
 }

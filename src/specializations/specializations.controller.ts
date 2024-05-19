@@ -2,8 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SpecializationsService } from './specializations.service';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
 import { UpdateSpecializationDto } from './dto/update-specialization.dto';
+import { Public } from 'src/common/decorator/public.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('specializations')
+@ApiTags('specializations')
 export class SpecializationsController {
   constructor(private readonly specializationsService: SpecializationsService) {}
 
@@ -13,6 +16,7 @@ export class SpecializationsController {
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.specializationsService.findAll();
   }

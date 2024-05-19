@@ -12,6 +12,9 @@ export class Doctor {
     @Column()
     name: string;
 
+    @Column({ nullable: true, type: 'longtext' })
+    description: string;
+
     @Column({ type: "date", nullable: true })
     date_of_birth: Date;
 
@@ -27,6 +30,24 @@ export class Doctor {
     @Column({ nullable: true })
     address: string;
 
+    @Column({ nullable: true })
+    hospital: string;
+
+    @Column({ nullable: true })
+    years_experience: number;
+
+    @Column({ default: 'monday', nullable: true })
+    start_day_of_week: string;
+
+    @Column({ type: 'time', default: '8:00:00', nullable: true })
+    time_start: string;
+
+    @Column({ default: 'friday', nullable: true })
+    end_day_of_week: string;
+
+    @Column({ type: 'time', default: '17:00:00',  nullable: true })
+    time_end: string;
+
     @CreateDateColumn()
     created_at: Date;
 
@@ -39,7 +60,9 @@ export class Doctor {
     })
     account: Promise<User>;
 
-    @ManyToOne(() => Specialization, (specialization) => specialization.doctors)
+    @ManyToOne(() => Specialization, (specialization) => specialization.doctors, {
+        eager: true,
+    })
     specialization: Specialization;
 
     @OneToMany(() => Appointment, (appointment) => appointment.doctor)
