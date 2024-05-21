@@ -24,4 +24,15 @@ export class FeedbacksController {
             throw new HttpException(err.message, err.status);
         }
     }
+
+    @Get('appointment/:id')
+    @Public()
+    async getFeedBackOfAppointment(@Param('id', new ParseIntPipe()) id: number) {
+        try {
+            const result = await this.feedbackService.getFeedBackOfAppointment(id);
+            return new ResponseData(result, HttpStatus.OK, HttpMessage.OK);
+        } catch (err) {
+            throw new HttpException(err.message, err.status);
+        }
+    }
 }

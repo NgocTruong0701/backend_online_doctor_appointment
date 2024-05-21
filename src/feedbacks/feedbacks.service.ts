@@ -10,6 +10,7 @@ import { ResponseData } from 'src/common/global/responde.data';
 import { HttpStatusCode } from 'src/common/enum/httpstatus.enum';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { IPayload } from 'src/auth/auth.service';
+import { Appointment } from 'src/appointments/entities/appointment.entity';
 
 @Injectable()
 export class FeedbacksService {
@@ -22,15 +23,18 @@ export class FeedbacksService {
         private doctorRepository: Repository<Doctor>,
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(Appointment)
+        private appointmentRepository: Repository<Appointment>,
     ) { }
 
     async create(payload: IPayload, createFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
         const userPatient = await this.userRepository.findOneBy({ id: payload.sub });
         const patient = userPatient.patient;
         const doctor = await this.doctorRepository.findOneBy({ id: createFeedbackDto.doctor_id });
+        const appointment = await this.appointmentRepository.findOneBy({ id: createFeedbackDto.appointment_id });
 
-        if (!patient || !doctor) {
-            throw new NotFoundException('Patient or doctor not found.');
+        if (!patient || !doctor || !appointment) {
+            throw new NotFoundException('Patient or doctor or appointment not found.');
         }
 
         const feedback = this.feedbackRepository.create({
@@ -38,7 +42,8 @@ export class FeedbacksService {
             comment: createFeedbackDto.comment,
             date: createFeedbackDto.date,
             doctor: doctor,
-            patient: userPatient.patient
+            patient: userPatient.patient,
+            appointment: appointment
         });
 
         return this.feedbackRepository.save(feedback);
@@ -51,10 +56,6 @@ export class FeedbacksService {
         const feedback = await this.feedbackRepository.findOneBy({ id: id });
         if (!feedback) {
             throw new NotFoundException('Feedback not found.');
-        }
-
-        if (feedback.patient !== patient) {
-            throw new BadRequestException('Patient is not valid for this feedback.');
         }
 
         const result = await this.feedbackRepository.update(id, updateFeedbackDto);
@@ -75,5 +76,15 @@ export class FeedbacksService {
             averageRating: roundedAverageRating,
             feedbackCount: result.feedbackCount,
         };
+    }
+
+    async getFeedBackOfAppointment(id) {
+        const appointment = await this.appointmentRepository.findOneBy({ id: id });
+        const result = await this.feedbackRepository.findOne({
+            where: {
+                appointment: appointment
+            }
+        });
+        return result;
     }
 }

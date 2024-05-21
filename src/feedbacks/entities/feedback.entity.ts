@@ -1,6 +1,7 @@
+import { Appointment } from "src/appointments/entities/appointment.entity";
 import { Doctor } from "src/doctors/entities/doctor.entity";
 import { Patient } from "src/patients/entities/patient.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('feedbacks')
 export class Feedback {
@@ -21,4 +22,8 @@ export class Feedback {
 
     @ManyToOne(() => Doctor, (doctor) => doctor.feedbacks)
     doctor: Doctor;
+
+    @OneToOne(() => Appointment)
+    @JoinColumn()
+    appointment: Appointment;
 }
