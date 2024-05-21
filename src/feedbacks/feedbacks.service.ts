@@ -87,4 +87,24 @@ export class FeedbacksService {
         });
         return result;
     }
+
+    async getReviewDoctorById(id: number, limit?: number) {
+        const doctor = await this.doctorRepository.findOneBy({ id: id });
+        if (!doctor) {
+            throw new NotFoundException('Doctor not found');
+        }
+
+        let sqlQuery = `
+            SELECT * 
+            FROM Feedbacks
+            WHERE doctorId = ${doctor.id}
+        `;
+
+        if (limit) {
+            sqlQuery += ` LIMIT ${limit}`;
+        }
+
+        const reviewDoctor = await this.feedbackRepository.query(sqlQuery);
+        return reviewDoctor;
+    }
 }
