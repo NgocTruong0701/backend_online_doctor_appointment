@@ -95,9 +95,16 @@ export class FeedbacksService {
         }
 
         let sqlQuery = `
-            SELECT * 
-            FROM Feedbacks
-            WHERE doctorId = ${doctor.id}
+            SELECT 
+                f.*, 
+                p.name AS patientName,  
+                p.avatar AS patientAvatar  
+            FROM 
+                Feedbacks f 
+            INNER JOIN 
+                Patients p ON f.patientId = p.id
+            WHERE 
+                f.doctorId = ${doctor.id}
         `;
 
         if (limit) {
