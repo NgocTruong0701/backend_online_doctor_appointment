@@ -87,8 +87,8 @@ export class PatientsController {
     @Req() req
   ) {
     try {
-      const result = await this.patientsService.getDoctorFavorite(req.user as IPayload);
-      return new ResponseData<Doctor>(result, HttpStatusCode.OK, HttpMessage.OK);
+      const result = await this.patientsService.getFavoriteDoctor(req.user as IPayload);
+      return new ResponseData(result, HttpStatusCode.OK, HttpMessage.OK);
     } catch (error) {
       throw new HttpException(error.message, error.status);
     }
@@ -108,4 +108,27 @@ export class PatientsController {
     }
   }
 
+  @Get('/')
+  @Public()
+  async getPatients() {
+    try {
+      const result = await this.patientsService.findAll();
+      return new ResponseData(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Delete(':id')
+  @Public()
+  async deletePatients(
+    @Param('id', new ParseIntPipe()) id: number
+  ) {
+    try {
+      const result = await this.patientsService.remove(id);
+      return new ResponseData(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

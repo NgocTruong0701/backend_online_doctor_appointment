@@ -14,9 +14,12 @@ import { Specialization } from 'src/specializations/entities/specialization.enti
 import { IPayload } from 'src/auth/auth.service';
 import { ResponseData } from 'src/common/global/responde.data';
 import { StreamChat } from 'stream-chat';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
+  private readonly s3Client = new S3Client({ region: this.configService.getOrThrow('AWS_REGION') });
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -27,6 +30,7 @@ export class UsersService {
     @InjectRepository(Doctor)
     private doctorRepository: Repository<Doctor>,
     private mailerService: MailerService,
+    private readonly configService: ConfigService
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<boolean> {
@@ -188,5 +192,27 @@ export class UsersService {
     const token = serverClient.createToken(account.id.toString());
 
     return token;
+  }
+
+  async uploadImage(payload: IPayload, file: Buffer, fileName: string) {
+    const user = await this.userRepository.findOneBy({ id: payload.sub });
+
+    const account = user.doctor ? user.doctor : user.patient;
+
+    fileName = `avatar/${fileName}`;
+    const result = await this.s3Client.send(
+      new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Key: fileName,
+        Body: file,
+      })
+    );
+
+    account.avatar = `https://doctor-appointment-bucket.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    if (!user.doctor) {
+      await this.patientRepository.update(account.id, { avatar: account.avatar });
+    } else {
+      await this.doctorRepository.update(account.id, { avatar: account.avatar });
+    }
   }
 }

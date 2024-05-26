@@ -72,8 +72,14 @@ export class AppointmentsController {
 
 
   @Get()
-  findAll() {
-    return this.appointmentsService.findAll();
+  @Public()
+  async findAll() {
+    try {
+      const result = await this.appointmentsService.findAll();
+      return new ResponseData<Appointment[]>(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (err) {
+      throw new HttpException(err.message, err.status);
+    }
   }
 
   @Get(':id')

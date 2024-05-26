@@ -1,8 +1,9 @@
 import { Appointment } from "src/appointments/entities/appointment.entity";
 import { Feedback } from "src/feedbacks/entities/feedback.entity";
+import { Patient } from "src/patients/entities/patient.entity";
 import { Specialization } from "src/specializations/entities/specialization.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('doctors')
 export class Doctor {
@@ -45,7 +46,7 @@ export class Doctor {
     @Column({ default: 'friday', nullable: true })
     end_day_of_week: string;
 
-    @Column({ type: 'time', default: '17:00:00',  nullable: true })
+    @Column({ type: 'time', default: '17:00:00', nullable: true })
     time_end: string;
 
     @CreateDateColumn()

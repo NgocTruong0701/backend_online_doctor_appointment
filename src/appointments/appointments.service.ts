@@ -235,8 +235,10 @@ export class AppointmentsService {
     return formattedAppointments;
   }
 
-  findAll() {
-    return `This action returns all appointments`;
+  async findAll() {
+    return await this.appointmentRepository.find({
+      relations: ['patient', 'doctor', 'packageAppointment']
+    });
   }
 
   findOne(id: number) {
