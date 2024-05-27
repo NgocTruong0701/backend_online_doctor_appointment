@@ -44,6 +44,10 @@ export class Patient {
     feedbacks: Feedback[];
 
     @ManyToMany(() => Doctor, { cascade: true })
-    @JoinTable()
+    @JoinTable({
+        name: 'patient_doctor',
+        joinColumns: [{ name: 'patient_id' }],
+        inverseJoinColumns: [{ name: 'doctor_id' }]
+    })
     doctors: Doctor[];
 }

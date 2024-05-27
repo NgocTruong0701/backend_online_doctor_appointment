@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateFeedbackDto {
     @IsNumber()
@@ -12,7 +12,7 @@ export class CreateFeedbackDto {
     @ApiProperty()
     rating: number;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     @ApiProperty()
     comment: string;
@@ -21,4 +21,9 @@ export class CreateFeedbackDto {
     @IsDateString()
     @ApiProperty()
     date: Date;
+
+    @IsNumber()
+    @IsNotEmpty()
+    @ApiProperty()
+    appointment_id: number;
 }

@@ -18,6 +18,7 @@ import { UpdateResult } from 'typeorm';
 import { Public } from 'src/common/decorator/public.decorator';
 import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { FavoriteDoctorDto } from './dto/favorite-doctor.dto';
+import { UpdateFeedbackDto } from 'src/feedbacks/dto/update-feedback.dto';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -52,7 +53,18 @@ export class PatientsController {
     try {
       return new ResponseData<Feedback>(await this.feedbackService.create(req.user as IPayload, createFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
     } catch (error) {
-      return new ResponseData<Feedback>(null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpMessage.INTERNAL_SERVER_ERROR, error.message);
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Post('/feedback/update/:id')
+  @ApiBearerAuth('JWT-auth')
+  @Roles(Role.PATIENT)
+  async patientUpdateFeedback(@Req() req, @Param('id', new ParseIntPipe()) id: number, @Body() updateFeedbackDto: UpdateFeedbackDto): Promise<ResponseData<boolean>> {
+    try {
+      return new ResponseData<boolean>(await this.feedbackService.update(req.user as IPayload, id, updateFeedbackDto), HttpStatusCode.CREATED, HttpMessage.CREATED);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
     }
   }
 
@@ -75,8 +87,8 @@ export class PatientsController {
     @Req() req
   ) {
     try {
-      const result = await this.patientsService.getDoctorFavorite(req.user as IPayload);
-      return new ResponseData<Doctor>(result, HttpStatusCode.OK, HttpMessage.OK);
+      const result = await this.patientsService.getFavoriteDoctor(req.user as IPayload);
+      return new ResponseData(result, HttpStatusCode.OK, HttpMessage.OK);
     } catch (error) {
       throw new HttpException(error.message, error.status);
     }
@@ -96,4 +108,27 @@ export class PatientsController {
     }
   }
 
+  @Get('/')
+  @Public()
+  async getPatients() {
+    try {
+      const result = await this.patientsService.findAll();
+      return new ResponseData(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @Delete(':id')
+  @Public()
+  async deletePatients(
+    @Param('id', new ParseIntPipe()) id: number
+  ) {
+    try {
+      const result = await this.patientsService.remove(id);
+      return new ResponseData(result, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
+  }
 }

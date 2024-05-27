@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Patient } from './entities/patient.entity';
 import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { FavoriteDoctorDto } from './dto/favorite-doctor.dto';
+import { DateHelper } from 'src/common/helper/date.helper';
 
 @Injectable()
 export class PatientsService {
@@ -23,8 +24,17 @@ export class PatientsService {
     return 'This action adds a new patient';
   }
 
-  findAll() {
-    return `This action returns all patients`;
+  async findAll() {
+    const result = await this.patientRepository.find({ relations: ['account'] });
+    result.forEach(patient => {
+      delete patient.account.password;
+      delete patient.account.verificationCode;
+      delete patient.account.verificationExpiry;
+      delete patient.account.created_at;
+      delete patient.account.updated_at;
+      delete patient.account.patient;
+    })
+    return result
   }
 
   findOne(id: number) {
@@ -51,8 +61,15 @@ export class PatientsService {
     return await this.patientRepository.update(id, updatePatientDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} patient`;
+  async remove(id: number) {
+    const patient = await this.patientRepository.findOne({ where: { id }, relations: ['account'] });
+    if (!patient) {
+      throw new NotFoundException(`Patient with id ${id} not found`);
+    }
+
+    const accountId = patient.account.id;
+    await this.patientRepository.remove(patient);
+    await this.userRepository.delete(accountId);
   }
 
   async getDoctorFavorite(payload: IPayload): Promise<Doctor[]> {
@@ -97,5 +114,53 @@ export class PatientsService {
     }
 
     return true;
+  }
+
+  async getFavoriteDoctor(payload: IPayload) {
+    const patient = await this.patientRepository
+      .createQueryBuilder('patient')
+      .innerJoin('patient.account', 'account')
+      .where('account.id = :accountId', { accountId: payload.sub })
+      .getOne();
+
+    if (!patient) {
+      return [];
+    }
+
+    const doctorsWithFeedback = await this.doctorRepository
+      .createQueryBuilder('doctor')
+      .leftJoinAndSelect('doctor.feedbacks', 'feedback')
+      .innerJoinAndSelect('doctor.specialization', 'specialization')
+      .leftJoin('patient_doctor', 'pd', 'pd.doctor_id = doctor.id AND pd.patient_id = :patientId', { patientId: patient.id })
+      .select([
+        'doctor.*',
+        'specialization.name AS specializationName',
+        'specialization.id AS specializationId',
+        'specialization.description AS specializationDescription',
+        'specialization.icon AS specializationIcon',
+        'AVG(feedback.rating) as averageRating',
+        'COUNT(feedback.id) as feedbackCount',
+        'CASE WHEN pd.patient_id IS NOT NULL THEN true ELSE false END as isFavorite'
+      ])
+      .groupBy('doctor.id')
+      .addGroupBy('specialization.name')
+      .addGroupBy('specialization.id')
+      .addGroupBy('specialization.description')
+      .addGroupBy('specialization.icon')
+      .orderBy('averageRating', 'DESC')
+      .getRawMany();
+
+    const formattedDoctors = doctorsWithFeedback.map(doctor => ({
+      ...doctor,
+      averageRating: parseFloat(doctor.averageRating).toFixed(1),
+      schedule: DateHelper.formatSchedule(
+        doctor.start_day_of_week,
+        doctor.time_start,
+        doctor.end_day_of_week,
+        doctor.time_end
+      ),
+    }));
+
+    return formattedDoctors.filter(doctor => doctor.isFavorite);
   }
 }
