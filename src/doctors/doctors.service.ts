@@ -35,6 +35,54 @@ export class DoctorsService {
     return 'This action adds a new doctor';
   }
 
+  async findAllAdmin() {
+    const doctorsWithFeedback = await this.doctorRepository
+      .createQueryBuilder('doctor')
+      .leftJoinAndSelect('doctor.feedbacks', 'feedback')
+      .innerJoinAndSelect('doctor.specialization', 'specialization')
+      .select([
+        'doctor.*',
+        'specialization.name',
+        'specialization.id',
+        'specialization.description',
+        'specialization.icon',
+        'AVG(feedback.rating) as averageRating',
+        'COUNT(feedback.id) as feedbackCount',
+      ])
+      .groupBy('doctor.id')
+      .orderBy('averageRating', 'DESC');
+    const rawDoctors = await doctorsWithFeedback.getRawMany();
+    const doctors = rawDoctors.map(doctor => ({
+      ...doctor,
+      averageRating: parseFloat(doctor.averageRating).toFixed(1),
+      schedule: DateHelper.formatSchedule(
+        doctor.start_day_of_week,
+        doctor.time_start,
+        doctor.end_day_of_week,
+        doctor.time_end
+      ),
+    }));
+
+    const formattedDoctors = doctors.map((doctor) => {
+      const scheduleString = DateHelper.formatSchedule(
+        doctor.start_day_of_week,
+        doctor.time_start,
+        doctor.end_day_of_week,
+        doctor.time_end
+      );
+      // Xóa các thuộc tính không cần thiết
+      delete doctor.start_day_of_week;
+      delete doctor.end_day_of_week;
+      delete doctor.time_start;
+      delete doctor.time_end;
+      return {
+        ...doctor,
+        schedule: scheduleString,
+      };
+    });
+    return formattedDoctors;
+  }
+
   async getFormattedDoctorsOrderByAverageRating(payload: IPayload, limit: number | null): Promise<any[]> {
     // Lấy danh sách bác sĩ và sắp xếp theo đánh giá trung bình
     const doctors = await this.getDoctorsOrderByAverageRating(payload, limit);

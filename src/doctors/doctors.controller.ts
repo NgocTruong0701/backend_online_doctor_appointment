@@ -23,7 +23,7 @@ export class DoctorsController {
 
   @Get()
   @ApiBearerAuth('JWT-auth')
-  @Roles(Role.PATIENT)
+  @Roles(Role.PATIENT, Role.ADMIN)
   @ApiQuery({
     name: 'limit',
     required: false,
@@ -36,6 +36,17 @@ export class DoctorsController {
   ): Promise<ResponseData<Doctor[]>> {
     try {
       const doctors = await this.doctorsService.getFormattedDoctorsOrderByAverageRating(req.user as IPayload, limit);
+      return new ResponseData<Doctor[]>(doctors, HttpStatusCode.OK, HttpMessage.OK);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get('/findAllAdmin')
+  @Public()
+  async findAllAdmin() {
+    try {
+      const doctors = await this.doctorsService.findAllAdmin();
       return new ResponseData<Doctor[]>(doctors, HttpStatusCode.OK, HttpMessage.OK);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
