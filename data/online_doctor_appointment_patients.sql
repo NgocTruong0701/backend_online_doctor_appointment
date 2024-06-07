@@ -1,0 +1,37 @@
+-- MySQL dump 10.13  Distrib 8.0.33, for Win64 (x86_64)
+--
+-- Host: localhost    Database: online_doctor_appointment
+-- ------------------------------------------------------
+-- Server version	8.0.33
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Dumping data for table `patients`
+--
+
+LOCK TABLES `patients` WRITE;
+/*!40000 ALTER TABLE `patients` DISABLE KEYS */;
+INSERT INTO `patients` VALUES (1,'ngoctruongf10','2002-01-07',1,'+84343630541','https://i.pinimg.com/564x/4e/25/e3/4e25e3bca2e4d9e03e0725fa09edc0c0.jpg','Hoàng Mai, Hà Nội',3,'2024-04-13 14:35:57.383846','2024-05-13 11:15:27.206714'),(6,'Lê Ngọc Trường','2020-01-20',1,'+84928482727','https://doctor-appointment-bucket.s3.ap-southeast-1.amazonaws.com/avatar/avatar-of-L Ngc Trng-1716778283828','Bắc Từ Liêm 2, Hà Nội',9,'2024-04-29 22:22:54.779751','2024-05-27 09:51:24.000000'),(11,'Le Ngoc Truong',NULL,NULL,NULL,'https://lh3.googleusercontent.com/a/ACg8ocK_jkUhegxsA4rrWXT7cAysL5xwSEBmuZK2ghr6IU4wPQ4p0A=s96-c',NULL,17,'2024-05-19 11:24:20.878619','2024-05-19 11:24:20.878619'),(14,'Trường Nguyễn Linh',NULL,1,NULL,'https://lh3.googleusercontent.com/a/ACg8ocIcm2jfOrZzTkVDq5jVOmIW1-pF1SyFM__IqXtSBTgfj85ffd21=s96-c',NULL,24,'2024-05-31 23:28:53.750927','2024-06-02 09:38:19.000000'),(15,'Diễm Nguyễn',NULL,2,NULL,'https://doctor-appointment-bucket.s3.ap-southeast-1.amazonaws.com/avatar/avatar-of-Dim Nguyn-1717260205896',NULL,25,'2024-06-01 23:35:44.707752','2024-06-01 23:43:28.000000');
+/*!40000 ALTER TABLE `patients` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2024-06-07 20:44:47
